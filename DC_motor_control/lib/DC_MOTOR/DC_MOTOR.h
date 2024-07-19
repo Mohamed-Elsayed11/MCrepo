@@ -5,12 +5,10 @@
 
 class DC_MOTOR {
   private:
-    int in1;
-    int in2;
-    int EN;
-    int enc1;
-    int enc2;
+    int in1, in2, EN, enc1, enc2;
     int speed;
+    volatile static int pos;
+    static DC_MOTOR* instance;
 
   public:
     DC_MOTOR(int In1, int In2, int Enable, int ENC1, int ENC2);
@@ -21,6 +19,9 @@ class DC_MOTOR {
     void backward();
     void backward(int Speed);
     void stop();
+    int get_pos_feedback();
+    static void enc1_callback();
+    static void enc2_callback();
 };
 
 #endif
