@@ -17,9 +17,11 @@ void setup() {
 
 void loop() {
   motor1.forward();
-  delay(1000);
+  delay(2000);
   motor1.stop();
-  delay(1000);
+  delay(2000);
   motor1.backward();
-  delay(1000);
+  delay(2000);
+  motor1.stop();
+  delay(2000);
 }

@@ -76,7 +76,7 @@ void DC_MOTOR::enc1_callback() {
         instance->pos++;
       }
     }
-    Serial.println(instance->pos); 
+    // Serial.println(instance->pos); 
   }
 }
 
@@ -98,7 +98,7 @@ void DC_MOTOR::enc2_callback() {
         instance->pos--;
       }
     }
-    Serial.println(instance->pos); 
+    // Serial.println(instance->pos); 
   }
 }
 
