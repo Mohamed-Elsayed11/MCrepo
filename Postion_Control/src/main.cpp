@@ -1,7 +1,10 @@
 #include <Arduino.h>
-#include "pid.h"
+#include "PID.h"
 
-int pid(int error);
+// int pid(int error);
+
+PID pid = PID(0.45, 0.0025, 0.001);
+
 void setup()
 {
   Serial.begin(9600);
