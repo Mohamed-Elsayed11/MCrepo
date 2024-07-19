@@ -4,9 +4,9 @@
 PID::PID(float kp, float ki, float kd)
 
 {
-    kp = 0.45;
-    ki = 0.0025;
-    kd = 0.001;
+    KP = kp;
+    ki = ki;
+    kd = kd;
 }
 
 void PID::error_estimation(void)
@@ -35,5 +35,5 @@ int PID::pid(int error)
     integral += error * dt;
     derivative = (error - pervious_error) / dt;
     pervious_error = error;
-    return (kp * error + ki * integral + kd * derivative);
+    return (KP * error + KI * integral + KD * derivative);
 }

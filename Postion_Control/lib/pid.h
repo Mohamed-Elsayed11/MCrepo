@@ -4,10 +4,10 @@ class PID
 {
 
 private:
-    float kp;
-    float ki;
-    float kd;
-    int set_point;
+    float KP;
+    float KI;
+    float KD;
+    int   set_point;
     float integral;
     float derivative;
     float error, pervious_error;
