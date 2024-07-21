@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "DC_MOTOR.h"
+#include "PID.h"
 
 #define input1 4
 #define input2 5
@@ -8,12 +9,15 @@
 #define encoder2 3
 
 DC_MOTOR motor1 = DC_MOTOR(input1, input2, enable, encoder1, encoder2);
+PID pid = PID(0.45, 0.0025, 0.001);
 
 void setup() {
     motor1.init();
-    motor1.setTargetPosition(1000);
+    pid.setSetpoint(1000);
 }
 
 void loop() {
-    motor1.updateMotorPosition();
+    int feedback = motor1.get_pos_feedback();
+    int speed = pid.compute(feedback);
+    pid.direction > 0 ? motor1.forward(speed) : motor1.backward(speed);
 }

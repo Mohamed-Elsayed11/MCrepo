@@ -1,11 +1,10 @@
 #include "DC_MOTOR.h"
-#include "PID.h"
 
 volatile int DC_MOTOR::pos = 0;
 DC_MOTOR* DC_MOTOR::instance = nullptr;
 
 DC_MOTOR::DC_MOTOR(int In1, int In2, int Enable, int ENC1, int ENC2)
-    : pid(0.45, 0.0025, 0.001) {
+{
   in1 = In1;
   in2 = In2;
   EN = Enable;
@@ -104,18 +103,4 @@ void DC_MOTOR::enc2_callback() {
 
 int DC_MOTOR::get_pos_feedback() {
   return pos;
-}
-
-void DC_MOTOR::setTargetPosition(int target) {
-  pid.setSetpoint(target);
-}
-
-void DC_MOTOR::updateMotorPosition() {
-  int feedback = get_pos_feedback();
-  double output = pid.compute(feedback);
-  if (pid.direction > 0) {
-    forward(int(output));
-  } else {
-    backward(int(output));
-  }
 }
