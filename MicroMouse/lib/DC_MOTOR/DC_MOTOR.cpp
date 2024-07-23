@@ -1,6 +1,5 @@
 #include "DC_MOTOR.h"
 
-volatile int DC_MOTOR::pos = 0;
 DC_MOTOR* DC_MOTOR::instance = nullptr;
 
 DC_MOTOR::DC_MOTOR(int In1, int In2, int Enable, int ENC1, int ENC2)

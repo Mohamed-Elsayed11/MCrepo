@@ -7,7 +7,7 @@ class DC_MOTOR {
   private:
     int in1, in2, EN, enc1, enc2;
     int speed;
-    volatile static int pos;
+    volatile int pos;
     static DC_MOTOR* instance;
 
   public:
