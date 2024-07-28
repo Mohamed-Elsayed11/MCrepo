@@ -35,10 +35,9 @@ void setup()
     // }
      motor1.init();
      motor2.init();
-     pid1.setSetpoint(2000);
-     pid2.setSetpoint(2000);
+     pid1.setSetpoint(1000);
+     pid2.setSetpoint(1000);
     //  pid.setSetpoint(90);
-    delay(2000);
 }
 
 void loop()
@@ -53,11 +52,11 @@ void loop()
     Serial.print(feedback2);
     Serial.print("\n");
 
-    // int speed1 = pid1.compute(feedback1);
-    // int speed2 = pid2.compute(feedback2);
+    int speed1 = pid1.compute(feedback1);
+    int speed2 = pid2.compute(feedback2);
 
-    // pid1.direction > 0 ? motor1.forward(speed1) : motor1.backward(speed1);
-    // pid2.direction > 0 ? motor1.forward(speed2) : motor1.backward(speed2);
+    pid1.direction > 0 ? motor1.forward(speed1) : motor1.backward(speed1);
+    pid2.direction > 0 ? motor2.forward(speed2) : motor2.backward(speed2);
  
     // imu.imu_calulations();
     // float yaw = imu.get_Yaw_angle();
