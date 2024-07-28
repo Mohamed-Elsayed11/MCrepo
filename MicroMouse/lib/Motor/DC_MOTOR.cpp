@@ -83,3 +83,7 @@ void DC_MOTOR::handle_encoder() {
 int DC_MOTOR::get_pos_feedback() {
     return pos;
 }
+
+void DC_MOTOR::reset_pos() {
+    pos = 0;
+}

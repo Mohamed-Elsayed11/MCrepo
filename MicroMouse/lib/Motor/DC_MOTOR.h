@@ -3,8 +3,6 @@
 
 #include <Arduino.h>
 
-#define MAX_MOTORS 2
-
 class DC_MOTOR {
 public:
     DC_MOTOR(int In1, int In2, int Enable, int EncA, int EncB);
@@ -16,6 +14,7 @@ public:
     void backward(int Speed);
     void stop();
     int get_pos_feedback();
+    void reset_pos();
 
 private:
     static int motor_num;

@@ -1,21 +1,26 @@
 #include "PID.h"
 
-PID::PID(double kp, double ki, double kd) {
-    this->kp = kp;
-    this->ki = ki;
-    this->kd = kd;
-    this->setpoint = 0;
-    this->prevError = 0;
-    this->integral = 0;
-    this->lastTime = 0;
-    this->direction = 0;
-}
+PID::PID(double kp, double ki, double kd)
+        :kp(kp), ki(ki), kd(kd), setpoint(0), prevError(0), integral(0), 
+        lastTime(0), direction(0), feedback(0){}
 
 void PID::setSetpoint(double setpoint) {
     this->setpoint = setpoint;
 }
 
-double PID::compute(double feedback) {
+void PID::setFeedback(int feedback) {
+    this->feedback = feedback;
+}
+
+int PID::getFeedback() {
+    return this->feedback;
+}
+
+double PID::getError(){
+    return setpoint - feedback;
+}
+
+double PID::compute() {
     double error = setpoint - feedback;
 
     unsigned long currentTime = millis();
