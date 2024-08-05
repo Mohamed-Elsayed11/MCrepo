@@ -42,7 +42,7 @@ public:
     {
         while (!Serial)
             ;
-        if (!imu.imu_init())
+        if (!imu.init())
         {
             Serial.println("IMU initialization failed!");
             while (1)
@@ -111,7 +111,7 @@ public:
         imu_pid.setSetpoint(angle);
         while (!ROBOT::isStopped_imu())
         {
-            imu.imu_calulations();
+            imu.calulations();
             imu_pid.setFeedback(imu.get_Yaw_angle());
             Serial.print("feedback: ");
             Serial.println(imu.get_Yaw_angle());

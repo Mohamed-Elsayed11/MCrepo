@@ -7,10 +7,10 @@ IMU2040::IMU2040()
     gyro_biasX = 0.0;
     gyro_biasY = 0.0;
     gyro_biasZ = 0.0;
-    first_reading = true; 
+    first_reading = true;
 }
 
-bool IMU2040::imu_init()
+bool IMU2040::init()
 {
     if (!IMU.begin())
     {
@@ -48,7 +48,7 @@ void IMU2040::calibrateGyroscope()
     gyro_biasZ = sumZ / num_samples;
 }
 
-void IMU2040::imu_calulations()
+void IMU2040::calulations()
 {
     if (IMU.gyroscopeAvailable() && IMU.accelerationAvailable())
     {
@@ -67,10 +67,10 @@ void IMU2040::imu_calulations()
             first_reading = false;
         }
 
-         relative_yaw = ((yaw - initial_yaw) * 10);
+        relative_yaw = ((yaw - initial_yaw) * 10);
         if (abs(gyroX) > gyro_threshold || abs(gyroY) > gyro_threshold || abs(gyroZ) > gyro_threshold)
         {
-          relative_yaw=relative_yaw;
+            relative_yaw = relative_yaw;
         }
 
         delay(10);

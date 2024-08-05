@@ -20,8 +20,8 @@ private:
 
 public:
     IMU2040();
-    bool imu_init();
-    void imu_calulations();
+    bool  init();
+    void  calulations();
     float get_Yaw_angle();
 };
 
