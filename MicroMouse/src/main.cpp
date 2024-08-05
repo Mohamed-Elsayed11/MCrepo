@@ -11,8 +11,9 @@ void setup()
 
 void loop()
 {
-    robot.move_distance(30);
-    robot.move_distance(-30);
-    robot.rotate_angle(90);
-    robot.rotate_angle(-90);
-}
+   // robot.move_distance(30);
+   // robot.move_distance(-30);
+  //  robot.rotate_angle(90);
+   // robot.rotate_angle(-90);
+       robot.Rotaion_move_imu(90);
+   }

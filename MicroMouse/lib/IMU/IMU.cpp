@@ -70,11 +70,7 @@ void IMU2040::imu_calulations()
          relative_yaw = ((yaw - initial_yaw) * 10);
         if (abs(gyroX) > gyro_threshold || abs(gyroY) > gyro_threshold || abs(gyroZ) > gyro_threshold)
         {
-           // Serial.print("Yaw Angle: ");
-           // Serial.print(relative_yaw);
-          //  Serial.println(" degrees");
           relative_yaw=relative_yaw;
-         
         }
 
         delay(10);
