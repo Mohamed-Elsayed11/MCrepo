@@ -36,7 +36,8 @@ private:
 public:
     ROBOT(double wheelSeparation, double wheelDiameter, int PPR)
         : wheelSeparation(wheelSeparation), wheelDiameter(wheelDiameter),
-          PPR(PPR), stopping_time(1000), prev_time(0), encoder1_prev_error(0), encoder2_prev_error(0), imu_prev_error(0), imu_stopping_time(1000), imu_prev_time(0) {}
+          PPR(PPR), stopping_time(1000), prev_time(0), encoder1_prev_error(0), 
+          encoder2_prev_error(0), imu_prev_error(0), imu_stopping_time(1000), imu_prev_time(0) {}
 
     void init()
     {
@@ -116,8 +117,9 @@ public:
             Serial.print("feedback: ");
             Serial.println(imu.get_Yaw_angle());
             int speed = imu_pid.compute();
-            imu_pid.direction > 0 ? right_motor.forward(speed) : right_motor.stop();
-            // imu_pid.direction > 0 ? left_motor.backward(speed) : left_motor.forward(speed);
+            imu_pid.direction > 0 ? 
+                right_motor.forward(speed), left_motor.backward(speed) 
+                : left_motor.forward(speed), right_motor.backward(speed);
         }
     }
 
@@ -125,7 +127,8 @@ public:
     {
         if (millis() - prev_time >= stopping_time)
         {
-            if (encoder1_pid.getError() == encoder1_prev_error && encoder2_pid.getError() == encoder2_prev_error)
+            if (encoder1_pid.getError() == encoder1_prev_error && 
+                    encoder2_pid.getError() == encoder2_prev_error)
             {
                 return true;
             }
@@ -135,6 +138,7 @@ public:
         }
         return false;
     }
+    
     bool isStopped_imu()
     {
         if (millis() - imu_prev_time >= imu_stopping_time)
