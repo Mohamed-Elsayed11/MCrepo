@@ -6,26 +6,26 @@
 #include "DC_MOTOR.h"
 #include "IMU.h"
 
-#define input1_1 3
-#define input2_1 4
-#define enable_1 2
-#define encoder1_1 9
-#define encoder2_1 8
+#define input1_1  4
+#define input2_1  3
+#define enable_1  2
+#define encoder1_1 11
+#define encoder2_1 10
 
-#define input1_2 5
-#define input2_2 6
+#define input1_2 6
+#define input2_2 5
 #define enable_2 7
-#define encoder1_2 11
-#define encoder2_2 10
+#define encoder1_2 9
+#define encoder2_2 8
 
 class ROBOT
 {
 private:
-    PID encoder1_pid = PID(0.55, 0.0025, 0.001);
-    PID encoder2_pid = PID(0.55, 0.0025, 0.001);
+    PID encoder1_pid = PID(0.9, 0.002, 0.001);
+    PID encoder2_pid = PID(0.9, 0.002, 0.001);
     PID imu_pid = PID(2.5, 0.025, 0.001);
-    DC_MOTOR right_motor = DC_MOTOR(input1_1, input2_1, enable_1, encoder1_1, encoder2_1);
-    DC_MOTOR left_motor = DC_MOTOR(input1_2, input2_2, enable_2, encoder1_2, encoder2_2);
+    DC_MOTOR  right_motor = DC_MOTOR(input1_1, input2_1, enable_1, encoder1_1, encoder2_1);
+    DC_MOTOR  left_motor =  DC_MOTOR(input1_2, input2_2, enable_2, encoder1_2, encoder2_2);
     IMU2040 imu = IMU2040();
     double wheelSeparation, wheelDiameter, encoder1_prev_error, encoder2_prev_error;
     double imu_prev_error;
@@ -55,8 +55,8 @@ public:
 
     void move_distance(double distance)
     {
-        right_motor.reset_pos();
-        left_motor.reset_pos();
+        right_motor.reset_pos_1();
+        left_motor.reset_pos_2();
         double circumference = 3.14 * wheelDiameter;
         double rotations_no = distance / circumference;
         int pulses = rotations_no * PPR;
@@ -64,11 +64,11 @@ public:
         encoder2_pid.setSetpoint(pulses);
         while (!ROBOT::isStopped())
         {
-            encoder1_pid.setFeedback(right_motor.get_pos_feedback());
-            encoder2_pid.setFeedback(left_motor.get_pos_feedback());
-            Serial.print("feedback1: ");
+           encoder1_pid.setFeedback(right_motor.get_pos_feedback_1());
+           encoder2_pid.setFeedback(left_motor.get_pos_feedback_2());
+           Serial.print("feedback1: ");
             Serial.print(encoder1_pid.getFeedback());
-            Serial.print("\t");
+           Serial.print("\t");
             Serial.print("feedback2: ");
             Serial.print(encoder2_pid.getFeedback());
             Serial.print("\n");
@@ -81,8 +81,8 @@ public:
 
     void rotate_angle(double angle)
     {
-        right_motor.reset_pos();
-        left_motor.reset_pos();
+        right_motor.reset_pos_1();
+        left_motor.reset_pos_2();
         double distance = (angle / 360) * 3.14 * wheelSeparation;
         double circumference = 3.14 * wheelDiameter;
         double rotations_no = distance / circumference;
@@ -91,8 +91,8 @@ public:
         encoder2_pid.setSetpoint(-pulses);
         while (!ROBOT::isStopped())
         {
-            encoder1_pid.setFeedback(right_motor.get_pos_feedback());
-            encoder2_pid.setFeedback(left_motor.get_pos_feedback());
+            encoder1_pid.setFeedback(right_motor.get_pos_feedback_1());
+            encoder2_pid.setFeedback(left_motor.get_pos_feedback_2());
             Serial.print("feedback1: ");
             Serial.print(encoder1_pid.getFeedback());
             Serial.print("\t");

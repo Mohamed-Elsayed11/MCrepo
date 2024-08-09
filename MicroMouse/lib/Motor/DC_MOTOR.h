@@ -13,8 +13,10 @@ public:
     void backward();
     void backward(int Speed);
     void stop();
-    int get_pos_feedback();
-    void reset_pos();
+    int get_pos_feedback_1();
+     int get_pos_feedback_2();
+    void reset_pos_1();
+    void reset_pos_2();
 
 private:
     static int motor_num;
@@ -22,11 +24,13 @@ private:
     static DC_MOTOR* motor2_ptr;
     int in1, in2, EN, encA, encB;
     int speed;
-    volatile long pos;
+    volatile long pos_1;
+    volatile long pos_2;
 
     static void encoder_callback1();
     static void encoder_callback2();
-    void handle_encoder();
+    void handle_encoder_1();
+    void handle_encoder_2();
 };
 
 #endif

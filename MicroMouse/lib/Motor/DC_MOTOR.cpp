@@ -5,7 +5,8 @@ DC_MOTOR* DC_MOTOR::motor1_ptr = nullptr;
 DC_MOTOR* DC_MOTOR::motor2_ptr = nullptr;
 
 DC_MOTOR::DC_MOTOR(int In1, int In2, int Enable, int EncA, int EncB)
-    : in1(In1), in2(In2), EN(Enable), encA(EncA), encB(EncB), speed(150), pos(0)
+    : in1(In1), in2(In2), EN(Enable), encA(EncA), encB(EncB), speed(150), pos_1(0)
+    ,pos_2(0)
 {
     ++motor_num;
     if (motor_num == 1) {
@@ -64,26 +65,40 @@ void DC_MOTOR::stop() {
 }
 
 void DC_MOTOR::encoder_callback1() {
-    motor1_ptr->handle_encoder();
+    motor1_ptr->handle_encoder_1();
 }
 
 void DC_MOTOR::encoder_callback2() {
-    motor2_ptr->handle_encoder();
+    motor2_ptr->handle_encoder_2();
 }
 
-void DC_MOTOR::handle_encoder() {
+void DC_MOTOR::handle_encoder_1() {
     int Encoder_B = digitalRead(encB);
     if (Encoder_B > 0) {
-        pos++;
+        pos_1++;
     } else {
-        pos--;
+        pos_1--;
+    }
+}
+void DC_MOTOR::handle_encoder_2() {
+    int Encoder_B = digitalRead(encB);
+    if (Encoder_B > 0) {
+        pos_2--;
+    } else {
+        pos_2++;
     }
 }
 
-int DC_MOTOR::get_pos_feedback() {
-    return pos;
+int DC_MOTOR::get_pos_feedback_1() {
+    return pos_1;
+}
+int DC_MOTOR::get_pos_feedback_2() {
+    return pos_2;
+}
+void DC_MOTOR::reset_pos_1() {
+    pos_1 = 0;
+}
+void DC_MOTOR::reset_pos_2() {
+    pos_2 = 0;
 }
 
-void DC_MOTOR::reset_pos() {
-    pos = 0;
-}
