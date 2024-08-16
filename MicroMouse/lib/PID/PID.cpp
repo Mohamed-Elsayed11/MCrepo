@@ -22,11 +22,11 @@ double PID::getError(){
 
 double PID::compute() {
     double error = setpoint - feedback;
-
+     prevError = error;
     unsigned long currentTime = millis();
 
     double deltaTime = (currentTime - lastTime) / 1000.0;
-
+    lastTime = currentTime;
     integral += error * deltaTime;
 
     double derivative = (error - prevError) / deltaTime;
@@ -39,8 +39,7 @@ double PID::compute() {
 
     output = min(output, 255);
 
-    prevError = error;
-    lastTime = currentTime;
+    
 
     return output;
 }
