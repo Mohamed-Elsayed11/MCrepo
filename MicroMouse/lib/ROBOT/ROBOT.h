@@ -18,6 +18,10 @@
 #define encoder1_2 11
 #define encoder2_2 10
 
+#define front_IR A0
+#define right_IR 12
+#define left_IR 13
+
 class ROBOT
 {
 private:
@@ -153,6 +157,34 @@ public:
             imu_prev_time = millis();
         }
         return false;
+    }
+
+    void IR_init(){
+        pinMode(front_IR, INPUT);
+        pinMode(right_IR, INPUT);
+        pinMode(left_IR, INPUT);
+    }
+
+    bool isFrontWall(){
+      //  Serial.print("front IR = ");
+       // Serial.println(digitalRead(front_IR));
+        return !digitalRead(front_IR);
+         
+    }
+
+    bool isRightWall(){
+       //  Serial.print("right_IR = ");
+     //   Serial.println(digitalRead(right_IR));
+        return !digitalRead(right_IR);
+    
+       
+    }
+
+    bool isLeftWall(){
+      //  Serial.print("left_IR = ");
+     //   Serial.println(digitalRead(left_IR));
+        return !digitalRead(left_IR);
+  
     }
 };
 

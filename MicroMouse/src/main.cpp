@@ -1,13 +1,15 @@
 #include <Arduino.h>
-#include "ROBOT.h"
+// #include "ROBOT.h"
+#include "FloodFill.h"
 
-ROBOT robot = ROBOT(11, 6.5, 970);
+// ROBOT robot = ROBOT(11, 6.5, 970);
 
 void setup()
 {
    
   Serial.begin(9600);
-  robot.init();
+  initialize();
+  // robot.init();
   // while(!Serial){
   //   ;
   // }
@@ -16,8 +18,10 @@ void setup()
 
 void loop()
 {
-  robot.move_distance(19.2);
+  solve();
 
-  robot.rotate_angle(90);
+  // robot.move_distance(19.2);
+
+  // robot.rotate_angle(90);
   
 }
