@@ -21,8 +21,8 @@
 class ROBOT
 {
 private:
-    PID encoder1_pid = PID(0.65, 0.000,0.000);
-    PID encoder2_pid = PID(0.85,0,0);
+    PID encoder1_pid = PID(1.2, 0.01, 0);  //left
+    PID encoder2_pid = PID(0.3, 0.01, 0);  //right
     PID imu_pid = PID(2.5, 0.025, 0.001);
     DC_MOTOR right_motor = DC_MOTOR(input1_1, input2_1, enable_1, encoder1_1, encoder2_1);
     DC_MOTOR left_motor =  DC_MOTOR(input1_2, input2_2, enable_2, encoder1_2, encoder2_2);
@@ -32,41 +32,50 @@ private:
     int PPR; // pulse per revolution
     unsigned long stopping_time, prev_time;
     unsigned long imu_stopping_time, imu_prev_time;
+    int repeat = 0;
 
 public:
     ROBOT(double wheelSeparation, double wheelDiameter, int PPR)
         : wheelSeparation(wheelSeparation), wheelDiameter(wheelDiameter),
-          PPR(PPR), stopping_time(600), prev_time(0), encoder1_prev_error(0),
+          PPR(PPR), stopping_time(3000), prev_time(0), encoder1_prev_error(0),
           encoder2_prev_error(0), imu_prev_error(0), imu_stopping_time(1000), imu_prev_time(0) {}
 
     void init()
     {
-        /*  while (!Serial)
-              ;
-          if (!imu.init())
-          {
-              Serial.println("IMU initialization failed!");
-              while (1)
-                  ;
-          }*/
-          right_motor.init();
-          left_motor.init();
-       
+        // while (!Serial)
+        //     ;
+        // if (!imu.init())
+        // {
+        //     Serial.println("IMU initialization failed!");
+        //     while (1)
+        //         ;
+        // }
+        right_motor.init();
+        left_motor.init();
+
     }
 
     void move_distance(double distance)
     {
-        right_motor.reset_pos_1();
-        left_motor.reset_pos_2();
+        // right_motor.reset_pos_1();
+        // left_motor.reset_pos_2();
         double circumference = 3.14 * wheelDiameter;
         double rotations_no = distance / circumference;
         int pulses = rotations_no * PPR;
-        encoder1_pid.setSetpoint(pulses);
-        encoder2_pid.setSetpoint(pulses);
-        while (!ROBOT::isStopped())
+        repeat++;
+        encoder1_pid.setSetpoint(pulses*repeat);
+        encoder2_pid.setSetpoint(pulses*repeat);
+        prev_time = millis();
+        // while (!ROBOT::isStopped())
+        while(millis() - prev_time < stopping_time)
         {
             encoder1_pid.setFeedback(right_motor.get_pos_feedback_1());
             encoder2_pid.setFeedback(left_motor.get_pos_feedback_2());
+            Serial.print("left motor = ");
+            Serial.print(encoder1_pid.getFeedback());
+            Serial.print('\t');
+            Serial.print("right motor = ");
+            Serial.println(encoder2_pid.getFeedback());
             delay(10);
             int speed1 = encoder1_pid.compute();
             int speed2 = encoder2_pid.compute();
@@ -85,7 +94,9 @@ public:
         int pulses = rotations_no * PPR;
         encoder1_pid.setSetpoint(pulses);
         encoder2_pid.setSetpoint(-pulses);
-        while (!ROBOT::isStopped())
+        prev_time = millis();
+        // while (!ROBOT::isStopped())
+        while(millis() - prev_time < stopping_time)
         {
             encoder1_pid.setFeedback(right_motor.get_pos_feedback_1());
             encoder2_pid.setFeedback(left_motor.get_pos_feedback_2());
@@ -95,6 +106,9 @@ public:
             encoder1_pid.direction > 0 ? right_motor.forward(speed1) : right_motor.backward(speed1);
             encoder2_pid.direction > 0 ? left_motor.forward(speed2) : left_motor.backward(speed2);
         }
+        repeat = 0;
+        right_motor.reset_pos_1();
+        left_motor.reset_pos_2();
     }
 
     void Rotaion_move_imu(double angle)
