@@ -5,7 +5,7 @@ typedef enum Heading {NORTH, EAST, SOUTH, WEST} Heading;
 typedef enum Action {LEFT, FORWARD, RIGHT, IDLE} Action;
 
 /* MAZE CONSTANTS */
-#define MAZE_SIZE 16
+#define MAZE_SIZE 5
 /*
 Sets the different types of cells (the walls around a given cell) in the format:
     _TopWall RightWall BottomWall LeftWall

@@ -25,8 +25,8 @@
 class ROBOT
 {
 private:
-    PID encoder1_pid = PID(1.2, 0.01, 0);  //left
-    PID encoder2_pid = PID(0.3, 0.01, 0);  //right
+    PID encoder1_pid = PID(0.9, 0.00, 0.0);  //left
+    PID encoder2_pid = PID(0.52, 0.00, 0.0);  //right
     PID imu_pid = PID(2.5, 0.025, 0.001);
     DC_MOTOR right_motor = DC_MOTOR(input1_1, input2_1, enable_1, encoder1_1, encoder2_1);
     DC_MOTOR left_motor =  DC_MOTOR(input1_2, input2_2, enable_2, encoder1_2, encoder2_2);
@@ -56,13 +56,11 @@ public:
         // }
         right_motor.init();
         left_motor.init();
-
+        IR_init();
     }
 
     void move_distance(double distance)
     {
-        // right_motor.reset_pos_1();
-        // left_motor.reset_pos_2();
         double circumference = 3.14 * wheelDiameter;
         double rotations_no = distance / circumference;
         int pulses = rotations_no * PPR;
@@ -70,16 +68,18 @@ public:
         encoder1_pid.setSetpoint(pulses*repeat);
         encoder2_pid.setSetpoint(pulses*repeat);
         prev_time = millis();
-        // while (!ROBOT::isStopped())
         while(millis() - prev_time < stopping_time)
         {
+            // imu.calulations();
             encoder1_pid.setFeedback(right_motor.get_pos_feedback_1());
             encoder2_pid.setFeedback(left_motor.get_pos_feedback_2());
-            Serial.print("left motor = ");
-            Serial.print(encoder1_pid.getFeedback());
-            Serial.print('\t');
-            Serial.print("right motor = ");
-            Serial.println(encoder2_pid.getFeedback());
+            // Serial.print("imu: ");
+            // Serial.println(imu.get_Yaw_angle());
+            // Serial.print("left motor = ");
+            // Serial.print(encoder1_pid.getFeedback());
+            // Serial.print('\t');
+            // Serial.print("right motor = ");
+            // Serial.println(encoder2_pid.getFeedback());
             delay(10);
             int speed1 = encoder1_pid.compute();
             int speed2 = encoder2_pid.compute();
@@ -99,9 +99,11 @@ public:
         encoder1_pid.setSetpoint(pulses);
         encoder2_pid.setSetpoint(-pulses);
         prev_time = millis();
-        // while (!ROBOT::isStopped())
         while(millis() - prev_time < stopping_time)
         {
+            // imu.calulations();
+            // Serial.print("imu: ");
+            // Serial.println(imu.get_Yaw_angle());
             encoder1_pid.setFeedback(right_motor.get_pos_feedback_1());
             encoder2_pid.setFeedback(left_motor.get_pos_feedback_2());
             delay(10);
@@ -119,7 +121,7 @@ public:
     {
 
         imu_pid.setSetpoint(angle);
-        while (!ROBOT::isStopped_imu())
+        while(millis() - prev_time < stopping_time)
         {
             imu.calulations();
             imu_pid.setFeedback(imu.get_Yaw_angle());
@@ -130,35 +132,6 @@ public:
         }
     }
 
-    bool isStopped()
-    {
-        if (millis() - prev_time >= stopping_time)
-        {
-            if (encoder1_pid.getError() == encoder1_prev_error &&
-                encoder2_pid.getError() == encoder2_prev_error)
-            {
-                return true;
-            }
-            encoder1_prev_error = encoder1_pid.getError();
-            encoder2_prev_error = encoder2_pid.getError();
-            prev_time = millis();
-        }
-        return false;
-    }
-
-    bool isStopped_imu()
-    {
-        if (millis() - imu_prev_time >= imu_stopping_time)
-        {
-            if (imu_pid.getError() == imu_prev_error)
-            {
-                return true;
-            }
-            imu_prev_time = millis();
-        }
-        return false;
-    }
-
     void IR_init(){
         pinMode(front_IR, INPUT);
         pinMode(right_IR, INPUT);
@@ -166,25 +139,15 @@ public:
     }
 
     bool isFrontWall(){
-      //  Serial.print("front IR = ");
-       // Serial.println(digitalRead(front_IR));
         return !digitalRead(front_IR);
-         
     }
 
     bool isRightWall(){
-       //  Serial.print("right_IR = ");
-     //   Serial.println(digitalRead(right_IR));
         return !digitalRead(right_IR);
-    
-       
     }
 
     bool isLeftWall(){
-      //  Serial.print("left_IR = ");
-     //   Serial.println(digitalRead(left_IR));
         return !digitalRead(left_IR);
-  
     }
 };
 

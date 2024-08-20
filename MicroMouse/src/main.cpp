@@ -2,18 +2,25 @@
 // #include "ROBOT.h"
 #include "FloodFill.h"
 
-// ROBOT robot = ROBOT(11, 6.5, 970);
+// ROBOT robot = ROBOT(10.2, 6.5, 970);
 
 void setup()
 {
-   
-  Serial.begin(9600);
-  initialize();
-  // robot.init();
   // while(!Serial){
   //   ;
   // }
-  // robot.move_distance(19.2);
+
+  Serial.begin(9600);
+  initialize();
+  // robot.init();
+  
+  // for(int i = 0; i < 3; i++){
+  //   robot.move_distance(19.2);
+  //   robot.move_distance(19.2);
+  //   robot.rotate_angle(90);
+  //   robot.rotate_angle(90);
+  // }
+  
 }
 
 void loop()
