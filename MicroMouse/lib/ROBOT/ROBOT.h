@@ -43,13 +43,13 @@ private:
 public:
     ROBOT(double wheelSeparation, double wheelDiameter, int PPR)
         : wheelSeparation(wheelSeparation), wheelDiameter(wheelDiameter),
-          PPR(PPR), stopping_time(2000), prev_time(0), encoder1_prev_error(0),
+          PPR(PPR), stopping_time(1500), prev_time(0), encoder1_prev_error(0),
           encoder2_prev_error(0), imu_prev_error(0), imu_stopping_time(1000), imu_prev_time(0) {}
 
     void init()
     {
-        while (!Serial)
-            ;
+        // while (!Serial)
+        //     ;
         if (!imu.init())
         {
             Serial.println("IMU initialization failed!");
@@ -95,9 +95,9 @@ public:
                 speed1 += extra;
                 speed2 -= extra;
             }
-            //Serial.println(extra);
-            //  Serial.print("imu: ");
-            //  Serial.println(imu.get_Yaw_angle());
+            // Serial.println(extra);
+            // Serial.print("imu: ");
+            // Serial.println(imu.get_Yaw_angle());
             Serial.print("left motor = ");
             Serial.print(encoder1_pid.getFeedback());
             Serial.print('\t');
@@ -108,7 +108,8 @@ public:
             encoder2_pid.direction > 0 ? left_motor.forward(speed2) : left_motor.backward(speed2);
            
         }
-         delay(100);
+        this->stop();
+        delay(100);
     }
 
     void rotate_angle(double angle)
@@ -158,6 +159,12 @@ public:
             int speed = imu_pid.compute();
             imu_pid.direction > 0 ? right_motor.forward(speed), left_motor.backward(speed) : left_motor.forward(speed), right_motor.backward(speed);
         }
+    }
+
+    void stop()
+    {
+        right_motor.stop();
+        left_motor.stop();
     }
 
     void IR_init()
