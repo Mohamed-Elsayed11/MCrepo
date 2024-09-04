@@ -14,7 +14,7 @@ void setup()
   // initialize();
   robot.init();
   
-  for(int i = 0; i < 4; i++){
+  for(int i = 0; i < 3; i++){
     robot.move_distance(19.2);
   }
    

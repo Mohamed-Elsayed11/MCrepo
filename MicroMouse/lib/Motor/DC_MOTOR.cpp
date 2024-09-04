@@ -75,17 +75,17 @@ void DC_MOTOR::encoder_callback2() {
 void DC_MOTOR::handle_encoder_1() {
     int Encoder_B = digitalRead(encB);
     if (Encoder_B > 0) {
-        pos_1--;
-    } else {
         pos_1++;
+    } else {
+        pos_1--;
     }
 }
 void DC_MOTOR::handle_encoder_2() {
     int Encoder_B = digitalRead(encB);
     if (Encoder_B > 0) {
-        pos_2++;
-    } else {
         pos_2--;
+    } else {
+        pos_2++;
     }
 }
 
