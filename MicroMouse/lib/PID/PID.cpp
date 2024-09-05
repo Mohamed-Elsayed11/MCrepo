@@ -1,7 +1,7 @@
 #include "PID.h"
 
-PID::PID(double kp, double ki, double kd)
-        :kp(kp), ki(ki), kd(kd), setpoint(0), prevError(0), integral(0), 
+PID::PID(double kp, double ki, double kd, int max_output)
+        :kp(kp), ki(ki), kd(kd), max_output(max_output), setpoint(0), prevError(0), integral(0), 
         lastTime(0), direction(0), feedback(0){}
 
 void PID::setSetpoint(double setpoint) {
@@ -37,7 +37,7 @@ double PID::compute() {
 
     output = abs(output);
 
-    output = min(output, 255);
+    output = min(output, max_output);
 
     
 

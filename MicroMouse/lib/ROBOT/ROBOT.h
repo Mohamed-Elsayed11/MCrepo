@@ -25,9 +25,9 @@
 class ROBOT
 {
 public:
-    PID encoder1_pid = PID(2, 0.003,0.3); // left
-    PID encoder2_pid = PID(2.5, 0.008,0.1); // right
-    PID imu_pid = PID(3,0.02, 0.0);
+    PID encoder1_pid = PID(2, 0.003, 0.3, 255); // left
+    PID encoder2_pid = PID(2.5, 0.008, 0.1, 255); // right
+    PID imu_pid = PID(3,0.02, 0.0, 255);
     DC_MOTOR right_motor = DC_MOTOR(input1_1, input2_1, enable_1, encoder1_1, encoder2_1);
     DC_MOTOR left_motor =  DC_MOTOR(input1_2, input2_2, enable_2, encoder1_2, encoder2_2);
     IMU2040 imu = IMU2040();

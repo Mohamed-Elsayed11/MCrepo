@@ -5,8 +5,8 @@
 
 ROBOT robot = ROBOT(9.7, 6.5, 970);
 
-PID right_velocity_pid = PID(0.565, 0.0, 0.0);
-PID left_velocity_pid = PID(0.38, 0.0, 0.0);
+PID right_velocity_pid = PID(0.565, 0.0, 0.0, 255);
+PID left_velocity_pid = PID(0.38, 0.0, 0.0, 255);
 
 unsigned long last_update_time = 0;
 
