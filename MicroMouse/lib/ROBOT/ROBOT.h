@@ -18,7 +18,7 @@
 #define encoder1_2 11
 #define encoder2_2 10
 
-#define front_IR A0
+#define front_IR A5
 #define right_IR 12
 #define left_IR 13
 
