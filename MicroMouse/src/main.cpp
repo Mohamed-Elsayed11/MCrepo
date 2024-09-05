@@ -5,8 +5,8 @@
 
 ROBOT robot = ROBOT(9.7, 6.5, 970);
 
-PID right_velocity_pid = PID(0.56, 0.01, 0.0);
-PID left_velocity_pid = PID(0.4, 0.01, 0.0);
+PID right_velocity_pid = PID(0.565, 0.0, 0.0);
+PID left_velocity_pid = PID(0.38, 0.0, 0.0);
 
 unsigned long last_update_time = 0;
 
@@ -29,8 +29,8 @@ void setup()
   // robot.move_distance(19.2);
   // robot.rotate_angle(90); 
   
-  right_velocity_pid.setSetpoint(1000);
-  left_velocity_pid.setSetpoint(1000);
+  right_velocity_pid.setSetpoint(2000);
+  left_velocity_pid.setSetpoint(2000);
 
   unsigned long last_update_time = millis();
 }
@@ -41,7 +41,7 @@ void loop()
 {
   unsigned long current_time = millis();
 
-  if (current_time - last_update_time >= 100) {
+  if (current_time - last_update_time >= 30) {
       robot.right_motor.update_velocity_1(current_time);
       robot.left_motor.update_velocity_2(current_time);
       right_velocity_pid.setFeedback(robot.right_motor.get_velocity_1());
