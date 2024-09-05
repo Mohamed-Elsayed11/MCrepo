@@ -6,7 +6,8 @@ DC_MOTOR* DC_MOTOR::motor2_ptr = nullptr;
 
 DC_MOTOR::DC_MOTOR(int In1, int In2, int Enable, int EncA, int EncB)
     : in1(In1), in2(In2), EN(Enable), encA(EncA), encB(EncB), speed(150), pos_1(0)
-    ,pos_2(0)
+    , pos_2(0), last_pos_1(0), last_pos_2(0), last_time_1(0), last_time_2(0)
+    , velocity_1(0), velocity_2(2)
 {
     ++motor_num;
     if (motor_num == 1) {
@@ -102,3 +103,34 @@ void DC_MOTOR::reset_pos_2() {
     pos_2 = 0;
 }
 
+void DC_MOTOR::update_velocity_1(unsigned long current_time) {
+    unsigned long delta_time = current_time - last_time_1;
+    int delta_pos = pos_1 - last_pos_1;
+
+    if (delta_time > 0) {
+        velocity_1 = (delta_pos * 1000.0) / delta_time;
+    }
+
+    last_pos_1 = pos_1;
+    last_time_1 = current_time;
+}
+
+void DC_MOTOR::update_velocity_2(unsigned long current_time) {
+    unsigned long delta_time = current_time - last_time_2;
+    int delta_pos = pos_2 - last_pos_2;
+
+    if (delta_time > 0) {
+        velocity_2 = (delta_pos * 1000.0) / delta_time;
+    }
+
+    last_pos_2 = pos_2;
+    last_time_2 = current_time;
+}
+
+int DC_MOTOR::get_velocity_1(){
+    return velocity_1;
+}
+
+int DC_MOTOR::get_velocity_2(){
+    return velocity_2;
+}

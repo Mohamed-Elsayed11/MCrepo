@@ -24,11 +24,9 @@
 
 class ROBOT
 {
-private:
-    // PID encoder1_pid = PID(0.0, 0.0, 0.0);  //left
-    // PID encoder2_pid = PID(0.0, 0.00, 0.0);  //right
+public:
     PID encoder1_pid = PID(2, 0.003,0.3); // left
-    PID encoder2_pid = PID(2.5, 0.008,0.1); // right                                   // PID encoder1_pid = PID(1.3, 0.0013, 0.09);  // left
+    PID encoder2_pid = PID(2.5, 0.008,0.1); // right
     PID imu_pid = PID(3,0.02, 0.0);
     DC_MOTOR right_motor = DC_MOTOR(input1_1, input2_1, enable_1, encoder1_1, encoder2_1);
     DC_MOTOR left_motor =  DC_MOTOR(input1_2, input2_2, enable_2, encoder1_2, encoder2_2);
@@ -43,7 +41,7 @@ private:
 public:
     ROBOT(double wheelSeparation, double wheelDiameter, int PPR)
         : wheelSeparation(wheelSeparation), wheelDiameter(wheelDiameter),
-          PPR(PPR), stopping_time(1500), prev_time(0), encoder1_prev_error(0),
+          PPR(PPR), stopping_time(3000), prev_time(0), encoder1_prev_error(0),
           encoder2_prev_error(0), imu_prev_error(0), imu_stopping_time(1000), imu_prev_time(0) {}
 
     void init()
@@ -68,36 +66,15 @@ public:
         double rotations_no = distance / circumference;
         int pulses = rotations_no * PPR;
         repeat++;
-        imu.calulations();
-        Serial.print("imu:f: ");
-        Serial.println(imu.get_Yaw_angle());
-        imu_pid.setSetpoint(imu.get_Yaw_angle());
         encoder1_pid.setSetpoint(pulses * repeat);
         encoder2_pid.setSetpoint(pulses * repeat);
         prev_time = millis();
         while (millis() - prev_time < stopping_time)
         {
-            imu.calulations();
             encoder1_pid.setFeedback(right_motor.get_pos_feedback_1());
             encoder2_pid.setFeedback(left_motor.get_pos_feedback_2());
-            imu_pid.setFeedback(imu.get_Yaw_angle());
-            int extra = imu_pid.compute(); // speed
-            extra = constrain(extra, -20, 20); 
             int speed1= encoder1_pid.compute();
             int speed2= encoder2_pid.compute();
-            if (imu_pid.direction > 0) // +
-            {
-                speed1 -= extra;
-                speed2 += extra;
-            }
-            else if (imu_pid.direction < 0)
-            {
-                speed1 += extra;
-                speed2 -= extra;
-            }
-            // Serial.println(extra);
-            // Serial.print("imu: ");
-            // Serial.println(imu.get_Yaw_angle());
             Serial.print("left motor = ");
             Serial.print(encoder1_pid.getFeedback());
             Serial.print('\t');
@@ -105,8 +82,7 @@ public:
             Serial.println(encoder2_pid.getFeedback());
 
             encoder1_pid.direction > 0 ? right_motor.forward(speed1) : right_motor.backward(speed1);
-            encoder2_pid.direction > 0 ? left_motor.forward(speed2) : left_motor.backward(speed2);
-           
+            encoder2_pid.direction > 0 ? left_motor.forward(speed2) : left_motor.backward(speed2);           
         }
         this->stop();
         delay(100);
