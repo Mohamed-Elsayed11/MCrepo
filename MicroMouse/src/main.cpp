@@ -10,8 +10,8 @@ ROBOT robot = ROBOT(9.7, 6.5, 970);
 PID right_velocity_pid = PID(0.565, 0.0, 0.0, 255);
 PID left_velocity_pid = PID(0.38, 0.0, 0.0, 255);
 
-PID right_pos_pid = PID(2, 0.0, 0.0, 2000);
-PID left_pos_pid = PID(2, 0.0, 0.0, 2000);
+PID right_pos_pid = PID(4, 0.01, 0.0, 2000);
+PID left_pos_pid = PID(5, 0.01, 0.0, 2000);
 
 unsigned long last_update_time = 0;
 unsigned long repeat_time = 0;
@@ -68,14 +68,14 @@ void loop()
     left_velocity_pid.direction > 0 ? 
       robot.left_motor.forward(speed2) : robot.left_motor.backward(speed2); 
     Serial.print("left motor: ");
-    Serial.print(robot.left_motor.get_velocity_2());
+    Serial.print(robot.left_motor.get_pos_feedback_2());
     Serial.print("\t\t");
     Serial.print("right right: ");
-    Serial.println(robot.right_motor.get_velocity_1());
+    Serial.println(robot.right_motor.get_pos_feedback_1());
     last_update_time = current_time;
   }
 
-  if(millis() - repeat_time > 2000 && repeat <= 10){
+  if(millis() - repeat_time > 2000 && repeat <= 20){
     repeat++;
     right_pos_pid.setSetpoint(912*repeat);
     left_pos_pid.setSetpoint(912*repeat);
