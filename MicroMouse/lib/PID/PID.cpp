@@ -22,7 +22,7 @@ double PID::getError(){
 
 double PID::compute() {
     double error = setpoint - feedback;
-     prevError = error;
+    prevError = error;
     unsigned long currentTime = millis();
 
     double deltaTime = (currentTime - lastTime) / 1000.0;
@@ -38,8 +38,6 @@ double PID::compute() {
     output = abs(output);
 
     output = min(output, max_output);
-
-    
 
     return output;
 }

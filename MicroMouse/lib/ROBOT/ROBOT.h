@@ -25,10 +25,6 @@
 class ROBOT
 {
 public:
-    PID encoder1_pid = PID(2, 0.003, 0.3, 255); // left
-    PID encoder2_pid = PID(2.5, 0.008, 0.1, 255); // right
-    PID imu_pid = PID(3,0.02, 0.0, 255);
-    
     DC_MOTOR right_motor = DC_MOTOR(input1_1, input2_1, enable_1, encoder1_1, encoder2_1);
     DC_MOTOR left_motor =  DC_MOTOR(input1_2, input2_2, enable_2, encoder1_2, encoder2_2);
 
@@ -38,30 +34,26 @@ public:
     PID left_pos_pid = PID(3, 0.0, 0.0, 1870);
 
     IMU2040 imu = IMU2040();
-    double wheelSeparation, wheelDiameter, encoder1_prev_error, encoder2_prev_error;
-    double imu_prev_error;
+    double wheelSeparation, wheelDiameter;
     int PPR; // pulse per revolution
-    unsigned long stopping_time, prev_time, last_update_time = 0;
-    unsigned long imu_stopping_time, imu_prev_time;
-    int repeat = 0, right_pos_setpoint = 0, left_pos_setpoint = 0;
+    unsigned long stopping_time = 3000, prev_time = 0, last_update_time = 0;
+    int right_pos_setpoint = 0, left_pos_setpoint = 0;
 
 public:
     ROBOT(double wheelSeparation, double wheelDiameter, int PPR)
-        : wheelSeparation(wheelSeparation), wheelDiameter(wheelDiameter),
-          PPR(PPR), stopping_time(3000), prev_time(0), encoder1_prev_error(0),
-          encoder2_prev_error(0), imu_prev_error(0), imu_stopping_time(1000), imu_prev_time(0) {}
+        : wheelSeparation(wheelSeparation), wheelDiameter(wheelDiameter),PPR(PPR){}
 
     void init()
     {
         // while (!Serial)
         //     ;
 
-        if (!imu.init())
-        {
-            Serial.println("IMU initialization failed!");
-            while (1)
-                ;
-        }
+        // if (!imu.init())
+        // {
+        //     Serial.println("IMU initialization failed!");
+        //     while (1)
+        //         ;
+        // }
 
         right_motor.init();
         left_motor.init();
@@ -145,21 +137,6 @@ public:
             }           
         }
         this->stop();
-    }
-
-    void Rotaion_move_imu(double angle)
-    {
-
-        imu_pid.setSetpoint(angle);
-        while (millis() - prev_time < stopping_time)
-        {
-            imu.calulations();
-            imu_pid.setFeedback(imu.get_Yaw_angle());
-            Serial.print("feedback: ");
-            Serial.println(imu.get_Yaw_angle());
-            int speed = imu_pid.compute();
-            imu_pid.direction > 0 ? right_motor.forward(speed), left_motor.backward(speed) : left_motor.forward(speed), right_motor.backward(speed);
-        }
     }
 
     void stop()

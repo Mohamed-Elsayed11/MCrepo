@@ -17,14 +17,12 @@ void setup()
   robot.init();
 }
 
- 
-
 void loop()
 {
   for(int i = 0; i < 6; i++){
     robot.move_distance(19.2);
   }
-  
+
   for(int i = 0; i < 2; i++){
     robot.rotate_angle(90);
   }
