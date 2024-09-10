@@ -1,5 +1,4 @@
 #include "DC_MOTOR.h"
-
 int DC_MOTOR::motor_num = 0;
 DC_MOTOR* DC_MOTOR::motor1_ptr = nullptr;
 DC_MOTOR* DC_MOTOR::motor2_ptr = nullptr;
@@ -110,7 +109,7 @@ void DC_MOTOR::update_velocity_1(unsigned long current_time) {
     if (delta_time > 0) {
         velocity_1 = (delta_pos * 1000.0) / delta_time;
     }
-
+    
     last_pos_1 = pos_1;
     last_time_1 = current_time;
 }
@@ -122,7 +121,6 @@ void DC_MOTOR::update_velocity_2(unsigned long current_time) {
     if (delta_time > 0) {
         velocity_2 = (delta_pos * 1000.0) / delta_time;
     }
-
     last_pos_2 = pos_2;
     last_time_2 = current_time;
 }

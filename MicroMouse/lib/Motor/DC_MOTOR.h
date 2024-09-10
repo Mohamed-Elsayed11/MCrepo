@@ -1,6 +1,6 @@
 #ifndef DC_MOTOR_H
 #define DC_MOTOR_H
-
+#define F_SIZE 10
 #include <Arduino.h>
 
 class DC_MOTOR {
@@ -21,6 +21,15 @@ public:
     void update_velocity_2(unsigned long current_time);
     int get_velocity_1();
     int get_velocity_2();
+    float velocity_mean_filter_1[F_SIZE]={0};
+    char F_index_1 =0;
+    float Filtered_velocity_1=0.0;
+    char Limit_1=0;
+    char Limit_2=0;
+    float velocity_mean_filter_2[F_SIZE]={0};
+    char F_index_2 =0;
+    float Filtered_velocity_2=0.0;
+
 
 private:
     static int motor_num;
