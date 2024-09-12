@@ -11,24 +11,24 @@ void setup()
   //  while(!Serial){
   //    ;
   //  }
-  while (!Serial)
-    ;
+  // while (!Serial)
+  //   ;
 
-  if (!imu.init())
-  {
-    Serial.println("IMU initialization failed!");
-    while (1)
-      ;
-  }
-  else
-  {
-    Serial.println("IMU initialized");
-  }
+  // if (!imu.init())
+  // {
+  //   Serial.println("IMU initialization failed!");
+  //   while (1)
+  //     ;
+  // }
+  // else
+  // {
+  //   Serial.println("IMU initialized");
+  // }
   Serial.begin(9600);
 
   // initialize();
 
-  // robot.init();
+   robot.init();
 
   // for(int i = 0; i < 3; i++){
   //   robot.move_distance(19.2);
@@ -41,10 +41,10 @@ void setup()
 
 void loop()
 {
-  imu.calulations();
-  double yaw_angle = imu.get_Yaw_angle();
-  Serial.print("angle: ");
-  Serial.println(yaw_angle);
+  // imu.calulations();
+  // double yaw_angle = imu.get_Yaw_angle();
+  // Serial.print("angle: ");
+  // Serial.println(yaw_angle);
   // for(int i = 0; i < 3; i++){
 
   //   robot.move_distance(19.2);
@@ -59,12 +59,12 @@ void loop()
   //      flag=1;
   //      delay(100);
   //    }
-  // robot.Rotation_move_imu(108);
-  // while(millis()-prev_time<2000);
-  // prev_time=millis();
-  // robot.Rotation_move_imu(-108);
-  // while(millis()-prev_time<2000);
-  // prev_time=millis();
+  robot.Rotation_move_imu(90);
+  while(millis()-prev_time<2000);
+  prev_time=millis();
+  robot.Rotation_move_imu(-90);
+  while(millis()-prev_time<2000);
+  prev_time=millis();
   //  Serial.println("---------------------------------------------------------------------");
 
   // solve();
