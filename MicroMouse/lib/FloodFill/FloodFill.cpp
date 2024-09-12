@@ -417,10 +417,10 @@ void solve(){
             robot.move_distance(19.2);
             break;
         case LEFT:
-            robot.rotate_angle(-88);
+            robot.Rotation_move_imu(90);
             break;
         case RIGHT:
-            robot.rotate_angle(90);
+           robot.Rotation_move_imu(-90);
             break;
         case IDLE:
             break;

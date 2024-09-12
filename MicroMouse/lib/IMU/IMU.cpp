@@ -80,3 +80,21 @@ float IMU2040::get_Yaw_angle()
 {
     return relative_yaw;
 }
+void IMU2040::reset()
+{
+    initial_yaw = 0.0;
+    relative_yaw = 0.0;
+    
+    
+    first_reading = true;  
+    gyro_biasX = 0.0;
+    gyro_biasY = 0.0;
+    gyro_biasZ = 0.0;
+
+    if (!IMU.begin()) {
+        Serial.println("Failed to reinitialize IMU!");
+    } else {
+        Serial.println("IMU reinitialized!");
+        calibrateGyroscope();  
+    }
+}

@@ -23,6 +23,7 @@ public:
     bool  init();
     void  calulations();
     float get_Yaw_angle();
+    void  reset();
 };
 
 #endif

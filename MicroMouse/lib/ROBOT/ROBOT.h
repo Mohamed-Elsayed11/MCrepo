@@ -32,13 +32,14 @@ public:
     PID left_velocity_pid  = PID(0.38, 0.0, 0.00, 255); //Right
     PID right_pos_pid      = PID(3.2, 0.0, 0.0, 2000);
     PID left_pos_pid       = PID(3, 0.0, 0.0, 1800);
-    PID imu_pid = PID(3, 0.0, 0.0,150);
+    PID imu_pid = PID(3.3, 0.01, 0.0,100);
 
     IMU2040 imu = IMU2040();
     double wheelSeparation, wheelDiameter;
     int PPR; // pulse per revolution
     unsigned long stopping_time = 2500, prev_time = 0, last_update_time = 0;
     int right_pos_setpoint = 0, left_pos_setpoint = 0;
+  
 
 public:
     ROBOT(double wheelSeparation, double wheelDiameter, int PPR)
@@ -50,11 +51,10 @@ public:
         
         while (!Serial);
 
-        if (!imu.init())
+        if(!imu.init())
         {
             Serial.println("IMU initialization failed!");
-            while (1)
-                ;
+            while (1);
         }
         else
         {
@@ -70,11 +70,12 @@ public:
  
     void move_distance(double distance)
     {
+        
         double circumference = 3.14 * wheelDiameter;
         double rotations_no = distance / circumference;
         int pulses = rotations_no * PPR;
-        right_pos_setpoint += pulses; 
-        left_pos_setpoint += pulses;
+        right_pos_setpoint = pulses; 
+        left_pos_setpoint = pulses;
         right_pos_pid.setSetpoint(right_pos_setpoint); 
         left_pos_pid.setSetpoint(left_pos_setpoint); 
         prev_time = millis();
@@ -84,10 +85,10 @@ public:
             if (current_time - last_update_time >= 30) {
                 right_motor.update_velocity_1(current_time);
                 left_motor.update_velocity_2(current_time);
-                noInterrupts();  
+                
                 right_pos_pid.setFeedback(right_motor.get_pos_feedback_1());
                 left_pos_pid.setFeedback(left_motor.get_pos_feedback_2());
-                interrupts();
+                
                 right_velocity_pid.setSetpoint(right_pos_pid.compute()); 
                 left_velocity_pid.setSetpoint(left_pos_pid.compute());      
                 right_velocity_pid.setFeedback(right_motor.get_velocity_1());
@@ -106,8 +107,10 @@ public:
                 last_update_time = current_time;
             }           
         }
-       
+        right_motor.reset_pos_1();
+        left_motor.reset_pos_2();
         this->stop();
+       
         
     }
 
@@ -154,9 +157,11 @@ public:
     // }
     void Rotation_move_imu(double angle)
     {
+       
+        
         imu_pid.setSetpoint(angle);
         prev_time = millis();  
-        while (millis() - prev_time < stopping_time)
+        while (millis() - prev_time < 6000)
         {
             imu.calulations();  
             double yaw_angle = imu.get_Yaw_angle();
@@ -178,11 +183,17 @@ public:
                 left_motor.backward(speed);
             }
             
-            if (abs(imu_pid.getError()) < 5)
+            if (abs(imu_pid.getError()) < 2)
             {
+                imu.reset();
                 break; 
             }
         }
+        imu.reset();
+        right_motor.reset_pos_1();
+        left_motor.reset_pos_2();
+        this->stop();
+       
     }
 
     void stop()
