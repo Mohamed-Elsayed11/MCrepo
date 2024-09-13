@@ -1,18 +1,18 @@
 #include <Arduino.h>
 #include "ROBOT.h"
-#include "IMU.h"
+// #include "IMU.h"
 // #include "FloodFill.h"
-IMU2040 imu = IMU2040();
-ROBOT robot = ROBOT(9.5, 6.5, 970);
-int flag = 0;
-unsigned long prev_time = 0;
+
+// IMU2040 imu = IMU2040();
+ROBOT robot = ROBOT(9.7, 6.5, 970);
+// int flag = 0;
+// unsigned long prev_time = 0;
+
 void setup()
 {
   //  while(!Serial){
   //    ;
   //  }
-  // while (!Serial)
-  //   ;
 
   // if (!imu.init())
   // {
@@ -24,19 +24,25 @@ void setup()
   // {
   //   Serial.println("IMU initialized");
   // }
+
   Serial.begin(9600);
 
   // initialize();
 
-   robot.init();
+  robot.init();
 
-  // for(int i = 0; i < 3; i++){
+  // for(int i = 0; i < 7; i++){
   //   robot.move_distance(19.2);
-  //  Serial.println("---------------------------------------------------------------------");
+  //   Serial.println("---------------------------------------------------------------------");
   // }
+
+  // robot.rotate_angle(90);
+  // robot.rotate_angle(90);
+
   // delay(50);
   // robot.Rotation_move_imu(90);
-  prev_time = millis();
+  // prev_time = millis();
+  // robot.move_distance(9);
 }
 
 void loop()
@@ -45,8 +51,9 @@ void loop()
   // double yaw_angle = imu.get_Yaw_angle();
   // Serial.print("angle: ");
   // Serial.println(yaw_angle);
-  // for(int i = 0; i < 3; i++){
+  // delay(100);
 
+  // for(int i = 0; i < 3; i++){
   //   robot.move_distance(19.2);
   // //  Serial.println("---------------------------------------------------------------------");
   // }
@@ -59,12 +66,23 @@ void loop()
   //      flag=1;
   //      delay(100);
   //    }
-  robot.Rotation_move_imu(90);
-  while(millis()-prev_time<2000);
-  prev_time=millis();
-  robot.Rotation_move_imu(-90);
-  while(millis()-prev_time<2000);
-  prev_time=millis();
+  
+  // robot.move_distance(19.2);
+  // robot.move_distance(19.2);
+  // robot.move_distance(19.2);
+  // robot.move_distance(19.2);
+  robot.move_distance(19.2);
+  // robot.Rotation_move_imu(90);
+  // robot.Rotation_move_imu(-90);
+  // robot.rotate_angle(90);
+  // robot.rotate_angle(-90);
+
+  // while(millis()-prev_time<2000);
+  // prev_time=millis();
+  // robot.Rotation_move_imu(-90);
+  // while(millis()-prev_time<2000);
+  // prev_time=millis();
+
   //  Serial.println("---------------------------------------------------------------------");
 
   // solve();
