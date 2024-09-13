@@ -2,6 +2,7 @@
 #define ROBOT_H
 
 #include <Arduino.h>
+#include <WiFiNINA.h>
 #include "PID.h"
 #include "DC_MOTOR.h"
 #include "IMU.h"
@@ -41,6 +42,7 @@ public:
     int PPR; // pulse per revolution
     unsigned long stopping_time = 2500, prev_time = 0, last_update_time = 0;
     int right_pos_setpoint = 0, left_pos_setpoint = 0, angle_setpoint = 0;
+    bool frontWall = 0;
 
 public:
     ROBOT(double wheelSeparation, double wheelDiameter, int PPR)
@@ -52,22 +54,23 @@ public:
         // while (!Serial)
         //     ;
 
-        // if (!imu.init())
-        // {
-        //     Serial.println("IMU initialization failed!");
-        //     while (1)
-        //         ;
-        // }
-        // else
-        // {
-        //     imu.calulations();
-        //     angle_setpoint = imu.get_Yaw_angle();
-        //     Serial.println("IMU initialized");
-        // }
+        if (!imu.init())
+        {
+            Serial.println("IMU initialization failed!");
+            while (1)
+                ;
+        }
+        else
+        {
+            imu.calulations();
+            angle_setpoint = imu.get_Yaw_angle();
+            Serial.println("IMU initialized");
+        }
 
         right_motor.init();
         left_motor.init();
         IR_init();
+        move_distance(9);
     }
 
     void move_distance(double distance)
@@ -100,11 +103,11 @@ public:
                 int speed2 = left_velocity_pid.compute();
                 right_pos_pid.direction > 0 ? right_motor.forward(speed1) : right_motor.backward(speed1);
                 left_pos_pid.direction > 0 ? left_motor.forward(speed2) : left_motor.backward(speed2);
-                Serial.print("right motor: ");
-                Serial.print(left_motor.get_pos_feedback_2());
-                Serial.print("\t\t");
-                Serial.print("left motor: ");
-                Serial.println(right_motor.get_pos_feedback_1());
+                // Serial.print("right motor: ");
+                // Serial.print(left_motor.get_pos_feedback_2());
+                // Serial.print("\t\t");
+                // Serial.print("left motor: ");
+                // Serial.println(right_motor.get_pos_feedback_1());
                 last_update_time = current_time;
             }
         }
@@ -115,6 +118,10 @@ public:
 
     void rotate_angle(double angle)
     {
+        right_motor.reset_pos_1();
+        left_motor.reset_pos_2();
+        right_pos_setpoint = 0;
+        left_pos_setpoint = 0;
         double distance = (angle / 360) * 3.14 * wheelSeparation;
         double circumference = 3.14 * wheelDiameter;
         double rotations_no = distance / circumference;
@@ -127,7 +134,7 @@ public:
         while (millis() - prev_time < stopping_time)
         {
             unsigned long current_time = millis();
-            if (current_time - last_update_time >= 30) {
+            if (current_time - last_update_time >= 10) {
                 right_motor.update_velocity_1(current_time);
                 left_motor.update_velocity_2(current_time);
                 right_pos_pid.setFeedback(right_motor.get_pos_feedback_1());
@@ -150,52 +157,55 @@ public:
                 last_update_time = current_time;
             }
         }
-
+        right_motor.reset_pos_1();
+        left_motor.reset_pos_2();
+        right_pos_setpoint = 0;
+        left_pos_setpoint = 0;
         this->stop();
     }
 
-    // void Rotation_move_imu(double angle)
-    // {
-    //     angle_setpoint += angle;
-    //     imu_pid.setSetpoint(angle_setpoint);
-    //     prev_time = millis();
-    //     while (millis() - prev_time < stopping_time)
-    //     {
-    //         imu.calulations();
-    //         double yaw_angle = imu.get_Yaw_angle();
-    //         imu_pid.setFeedback(yaw_angle);
+    void Rotation_move_imu(double angle)
+    {
+        angle_setpoint += angle;
+        imu_pid.setSetpoint(angle_setpoint);
+        prev_time = millis();
+        while (millis() - prev_time < stopping_time)
+        {
+            imu.calulations();
+            double yaw_angle = imu.get_Yaw_angle();
+            imu_pid.setFeedback(yaw_angle);
 
-    //         Serial.print("angle_setpoint: ");
-    //         Serial.print(angle_setpoint);
-    //         Serial.print("Feedback: ");
-    //         Serial.println(yaw_angle);
+            // Serial.print("angle_setpoint: ");
+            // Serial.print(angle_setpoint);
+            // Serial.print("Feedback: ");
+            // Serial.println(yaw_angle);
 
-    //         int speed = imu_pid.compute();
+            int speed = imu_pid.compute();
 
-    //         if (imu_pid.direction > 0)
-    //         {
-    //             left_motor.forward(speed);
-    //             right_motor.backward(speed);
-    //         }
-    //         else
-    //         {
-    //             right_motor.forward(speed);
-    //             left_motor.backward(speed);
-    //         }
+            if (imu_pid.direction > 0)
+            {
+                left_motor.forward(speed);
+                right_motor.backward(speed);
+            }
+            else
+            {
+                right_motor.forward(speed);
+                left_motor.backward(speed);
+            }
 
-    //         // if (abs(imu_pid.getError()) < 2)
-    //         // {
-    //         //     imu.reset();
-    //         //     break;
-    //         // }
-    //     }
-    //     // imu.reset();
-    //     // right_motor.reset_pos_1();
-    //     // left_motor.reset_pos_2();
-    //     right_pos_setpoint = right_motor.get_pos_feedback_1();
-    //     left_pos_setpoint = left_motor.get_pos_feedback_2();
-    //     this->stop();
-    // }
+            // if (abs(imu_pid.getError()) < 2)
+            // {
+            //     imu.reset();
+            //     break;
+            // }
+        }
+        // imu.reset();
+        // right_motor.reset_pos_1();
+        // left_motor.reset_pos_2();
+        right_pos_setpoint = right_motor.get_pos_feedback_1();
+        left_pos_setpoint = left_motor.get_pos_feedback_2();
+        this->stop();
+    }
 
     void stop()
     {

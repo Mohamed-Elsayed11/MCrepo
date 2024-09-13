@@ -2,7 +2,7 @@
 #include "myQueue.h"
 #include "ROBOT.h"
 
-ROBOT robot = ROBOT(11, 6.5, 970);
+ROBOT robot = ROBOT(10.1, 6.5, 970);
 
 unsigned int maze[MAZE_SIZE][MAZE_SIZE] = { 0 };
 int distances[MAZE_SIZE][MAZE_SIZE] = { -1 };   // 1000 if it hasn't been visited yet
@@ -414,13 +414,18 @@ void solve(){
     Action nextMove = solver();
     switch(nextMove){
         case FORWARD:
+            Serial.println("FRONT");
             robot.move_distance(19.2);
             break;
         case LEFT:
+            Serial.println("LEFT");
             robot.Rotation_move_imu(90);
+            // robot.rotate_angle(90);
             break;
         case RIGHT:
-           robot.Rotation_move_imu(-90);
+            Serial.println("RIGHT");
+            robot.Rotation_move_imu(-90);
+            // robot.rotate_angle(-90);
             break;
         case IDLE:
             break;
