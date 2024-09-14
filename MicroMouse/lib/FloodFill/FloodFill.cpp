@@ -415,7 +415,7 @@ void solve(){
     switch(nextMove){
         case FORWARD:
             Serial.println("FRONT");
-            robot.move_distance(19.2);
+            robot.move_distance(21.5);
             break;
         case LEFT:
             Serial.println("LEFT");

@@ -61,4 +61,11 @@ void loop()
   // robot.rotate_angle(90);
 
   solve();
+  // Serial.print("front: ");
+  // Serial.print(!digitalRead(A2));
+  // Serial.print("right: ");
+  // Serial.print(!digitalRead(13));
+  // Serial.print("left: ");
+  // Serial.println(!digitalRead(12));
+  // delay(100);
 }

@@ -19,9 +19,9 @@
 #define encoder1_2 11
 #define encoder2_2 10
 
-#define front_IR A5
-#define right_IR 12
-#define left_IR 13
+#define front_IR A2
+#define right_IR 13
+#define left_IR 12
 
 class ROBOT
 {
@@ -70,7 +70,7 @@ public:
         right_motor.init();
         left_motor.init();
         IR_init();
-        move_distance(9);
+       // move_distance(3.5);
     }
 
     void move_distance(double distance)
