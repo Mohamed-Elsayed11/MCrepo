@@ -38,6 +38,9 @@ public:
     PID imu_pid = PID(2.45, 0.001, 0.0, 100);
     PID forward_imu_pid = PID(2, 0.0, 0.0, 20);
 
+    PID encoder1_pid = PID(2, 0.003, 0.3, 255); // left
+    PID encoder2_pid = PID(2.5, 0.008, 0.1, 255); // right
+
     IMU2040 imu = IMU2040();
     double wheelSeparation, wheelDiameter;
     int PPR; // pulse per revolution
@@ -128,50 +131,41 @@ public:
 
     void rotate_angle(double angle)
     {
-        right_motor.reset_pos_1();
-        left_motor.reset_pos_2();
-        right_pos_setpoint = 0;
-        left_pos_setpoint = 0;
+        // right_motor.reset_pos_1();
+        // left_motor.reset_pos_2();
         double distance = (angle / 360) * 3.14 * wheelSeparation;
         double circumference = 3.14 * wheelDiameter;
         double rotations_no = distance / circumference;
         int pulses = rotations_no * PPR;
-        right_pos_setpoint -= pulses;
-        left_pos_setpoint += pulses;
-        right_pos_pid.setSetpoint(right_pos_setpoint);
-        left_pos_pid.setSetpoint(left_pos_setpoint);
+        right_pos_setpoint += pulses;
+        left_pos_setpoint -= pulses;
+        // encoder1_pid.setSetpoint(pulses);
+        // encoder2_pid.setSetpoint(-pulses);
+        encoder1_pid.setSetpoint(right_pos_setpoint);
+        encoder2_pid.setSetpoint(left_pos_setpoint);
         prev_time = millis();
         while (millis() - prev_time < stopping_time)
         {
-            unsigned long current_time = millis();
-            if (current_time - last_update_time >= 10) {
-                right_motor.update_velocity_1(current_time);
-                left_motor.update_velocity_2(current_time);
-                right_pos_pid.setFeedback(right_motor.get_pos_feedback_1());
-                left_pos_pid.setFeedback(left_motor.get_pos_feedback_2());
-                right_velocity_pid.setSetpoint(right_pos_pid.compute());
-                left_velocity_pid.setSetpoint(left_pos_pid.compute());
-                right_velocity_pid.setFeedback(right_motor.get_velocity_1());
-                left_velocity_pid.setFeedback(left_motor.get_velocity_2());
-                int speed1 = right_velocity_pid.compute();
-                int speed2 = left_velocity_pid.compute();
-                right_pos_pid.direction > 0 ?
-                right_motor.forward(speed1) : right_motor.backward(speed1);
-                left_pos_pid.direction > 0 ?
-                left_motor.forward(speed2) : left_motor.backward(speed2);
-                Serial.print("right motor: ");
-                Serial.print(left_motor.get_pos_feedback_2());
-                Serial.print("\t\t");
-                Serial.print("left right: ");
-                Serial.println(right_motor.get_pos_feedback_1());
-                last_update_time = current_time;
-            }
+            imu.calulations();
+            Serial.print("imu: ");
+            Serial.println(imu.get_Yaw_angle());
+            encoder1_pid.setFeedback(right_motor.get_pos_feedback_1());
+            encoder2_pid.setFeedback(left_motor.get_pos_feedback_2());
+            // Serial.print("left motor = ");
+            // Serial.print(encoder1_pid.getFeedback());
+            // Serial.print('\t');
+            // Serial.print("right motor = ");
+            // Serial.println(encoder2_pid.getFeedback());
+            delay(5);
+            int speed1 = encoder1_pid.compute();
+            int speed2 = encoder2_pid.compute();
+            encoder1_pid.direction > 0 ? right_motor.forward(speed1) : right_motor.backward(speed1);
+            encoder2_pid.direction > 0 ? left_motor.forward(speed2) : left_motor.backward(speed2);
         }
-        right_motor.reset_pos_1();
-        left_motor.reset_pos_2();
-        right_pos_setpoint = 0;
-        left_pos_setpoint = 0;
-        this->stop();
+        // right_pos_setpoint = 0;
+        // left_pos_setpoint = 0;
+        // right_motor.reset_pos_1();
+        // left_motor.reset_pos_2();
     }
 
     void Rotation_move_imu(double angle)
