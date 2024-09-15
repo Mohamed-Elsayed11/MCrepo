@@ -39,7 +39,7 @@ void DC_MOTOR::setSpeed(int Speed) {
 void DC_MOTOR::forward() {
     digitalWrite(in1, HIGH);
     digitalWrite(in2, LOW);
-    analogWrite(EN, speed);
+    analogWrite(EN, min(speed, 255));
 }
 
 void DC_MOTOR::forward(int Speed) {
@@ -50,7 +50,7 @@ void DC_MOTOR::forward(int Speed) {
 void DC_MOTOR::backward() {
     digitalWrite(in1, LOW);
     digitalWrite(in2, HIGH);
-    analogWrite(EN, speed);
+    analogWrite(EN, min(speed, 255));
 }
 
 void DC_MOTOR::backward(int Speed) {

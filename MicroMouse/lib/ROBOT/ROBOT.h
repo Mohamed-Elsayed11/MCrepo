@@ -36,6 +36,7 @@ public:
     PID left_pos_pid = PID(3, 0.0, 0.0, 1800);
 
     PID imu_pid = PID(2.5, 0.001, 0.0, 100);
+    PID forward_imu_pid = PID(10, 0.0, 0.0, 30);
 
     IMU2040 imu = IMU2040();
     double wheelSeparation, wheelDiameter;
@@ -75,7 +76,6 @@ public:
 
     void move_distance(double distance)
     {
-
         double circumference = 3.14 * wheelDiameter;
         double rotations_no = distance / circumference;
         int pulses = rotations_no * PPR;
@@ -83,6 +83,7 @@ public:
         left_pos_setpoint += pulses;
         right_pos_pid.setSetpoint(right_pos_setpoint);
         left_pos_pid.setSetpoint(left_pos_setpoint);
+        forward_imu_pid.setSetpoint(angle_setpoint);
         prev_time = millis();
         while (millis() - prev_time < stopping_time)
         {
@@ -95,12 +96,18 @@ public:
                 right_pos_pid.setFeedback(right_motor.get_pos_feedback_1());
                 left_pos_pid.setFeedback(left_motor.get_pos_feedback_2());
 
+                imu.calulations();
+                forward_imu_pid.setFeedback(imu.get_Yaw_angle());
+
                 right_velocity_pid.setSetpoint(right_pos_pid.compute());
                 left_velocity_pid.setSetpoint(left_pos_pid.compute());
                 right_velocity_pid.setFeedback(right_motor.get_velocity_1());
                 left_velocity_pid.setFeedback(left_motor.get_velocity_2());
                 int speed1 = right_velocity_pid.compute();
                 int speed2 = left_velocity_pid.compute();
+                int speed3 = forward_imu_pid.compute();
+                forward_imu_pid.direction > 0 ? speed3 = speed3 : speed3 = -speed3;
+                speed1 -= speed3; speed2 += speed3;
                 right_pos_pid.direction > 0 ? right_motor.forward(speed1) : right_motor.backward(speed1);
                 left_pos_pid.direction > 0 ? left_motor.forward(speed2) : left_motor.backward(speed2);
                 // Serial.print("right motor: ");
@@ -193,11 +200,11 @@ public:
                 left_motor.backward(speed);
             }
 
-            // if (abs(imu_pid.getError()) < 2)
-            // {
-            //     imu.reset();
-            //     break;
-            // }
+            if (abs(imu_pid.getError()) < 2)
+            {
+                // imu.reset();
+                break;
+            }
         }
         // imu.reset();
         // right_motor.reset_pos_1();
