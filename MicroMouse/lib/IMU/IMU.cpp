@@ -57,7 +57,10 @@ void IMU2040::calulations()
         gyroX -= gyro_biasX;
         gyroY -= gyro_biasY;
         gyroZ -= gyro_biasZ;
-        filter.updateIMU(gyroX, gyroY, gyroZ, accelX, accelY, accelZ);
+        filtered_gyroX = LPF * gyroX + (1 - LPF) * filtered_gyroX;
+        filtered_gyroY = LPF * gyroY + (1 - LPF) * filtered_gyroY;
+        filtered_gyroZ = LPF * gyroZ + (1 - LPF) * filtered_gyroZ;
+        filter.updateIMU(filtered_gyroX, filtered_gyroY, filtered_gyroZ, accelX, accelY, accelZ);
         float yaw = filter.getYaw();
         yaw = (yaw * yaw_multiplier);
 
@@ -68,10 +71,10 @@ void IMU2040::calulations()
         }
 
         relative_yaw = ((yaw - initial_yaw) * 10);
-        if (abs(gyroX) > gyro_threshold || abs(gyroY) > gyro_threshold || abs(gyroZ) > gyro_threshold)
-        {
-            relative_yaw = relative_yaw;
-        }
+        // if (abs(gyroX) > gyro_threshold || abs(gyroY) > gyro_threshold || abs(gyroZ) > gyro_threshold)
+        // {
+        //     relative_yaw = relative_yaw;
+        // }
 
         delay(10);
     }
@@ -91,10 +94,10 @@ void IMU2040::reset()
     gyro_biasY = 0.0;
     gyro_biasZ = 0.0;
 
-    if (!IMU.begin()) {
-        Serial.println("Failed to reinitialize IMU!");
-    } else {
-        Serial.println("IMU reinitialized!");
+    // if (!IMU.begin()) {
+    //     Serial.println("Failed to reinitialize IMU!");
+    // } else {
+    //     Serial.println("IMU reinitialized!");
         calibrateGyroscope();  
-    }
+    // }
 }

@@ -50,5 +50,6 @@ Action solver();
 Action leftWallFollower();
 Action floodFill();
 void solve();
+bool isWallBehind();
 
 #endif

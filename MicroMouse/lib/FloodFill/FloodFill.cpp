@@ -118,25 +118,6 @@ void updateMaze() {
 
     maze[x][y] |= walls;
 
-    // REMOVE LATER
-    //debug_int(maze[x][y]);
-    // unsigned int north = _1000;
-    // if (maze[x][y] >= 8) {
-    //     API_setWall(x, y, 'n');
-    //     //debug_log("There's a wall to the north");
-    // }
-    // if (maze[x][y] % 8 >= 4) {
-    //     API_setWall(x, y, 'e');
-    //     //debug_log("There's a wall to the east");
-    // }
-    // if (maze[x][y] % 4 >= 2) {
-    //     API_setWall(x, y, 's');
-    //     //debug_log("There's a wall to the south");
-    // }
-    // if (maze[x][y] % 2 == 1) {
-    //     API_setWall(x, y, 'w');
-    //     //debug_log("There's a wall to the west");
-    // }
 }
 
 int xyToSquare(int x, int y) {
@@ -399,6 +380,22 @@ Action floodFill() {
     return optimal_move;
 }
 
+bool isWallBehind() {
+    // Check for a wall in the opposite direction of the current heading
+    switch (heading) {
+        case NORTH:
+            return isWallInDirection(position.x, position.y, SOUTH);
+        case EAST:
+            return isWallInDirection(position.x, position.y, WEST);
+        case SOUTH:
+            return isWallInDirection(position.x, position.y, NORTH);
+        case WEST:
+            return isWallInDirection(position.x, position.y, EAST);
+    }
+
+    return false; // Default return value, should not reach here
+}
+
 // This is an example of a simple left wall following algorithm.
 Action leftWallFollower() {
     if(robot.isFrontWall()) {
@@ -415,7 +412,13 @@ void solve(){
     switch(nextMove){
         case FORWARD:
             Serial.println("FRONT");
-            robot.move_distance(21.5);
+            if(robot.touchBehindWall){
+                robot.move_distance(25);
+                robot.touchBehindWall = false;
+            }
+            else{
+                robot.move_distance(21.5);
+            }
             break;
         case LEFT:
             Serial.println("LEFT");
@@ -429,5 +432,9 @@ void solve(){
             break;
         case IDLE:
             break;
+    }
+    if(isWallBehind() && !robot.isFrontWall()){
+        robot.move_backward();
+        robot.touchBehindWall = true;
     }
 }

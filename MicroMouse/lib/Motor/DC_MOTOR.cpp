@@ -39,7 +39,7 @@ void DC_MOTOR::setSpeed(int Speed) {
 void DC_MOTOR::forward() {
     digitalWrite(in1, HIGH);
     digitalWrite(in2, LOW);
-    analogWrite(EN, min(speed, 255));
+    analogWrite(EN, speed);
 }
 
 void DC_MOTOR::forward(int Speed) {
@@ -50,7 +50,7 @@ void DC_MOTOR::forward(int Speed) {
 void DC_MOTOR::backward() {
     digitalWrite(in1, LOW);
     digitalWrite(in2, HIGH);
-    analogWrite(EN, min(speed, 255));
+    analogWrite(EN, speed);
 }
 
 void DC_MOTOR::backward(int Speed) {
@@ -109,7 +109,7 @@ void DC_MOTOR::update_velocity_1(unsigned long current_time) {
     if (delta_time > 0) {
         velocity_1 = (delta_pos * 1000.0) / delta_time;
     }
-    
+    Filtered_velocity_1=(LPF*velocity_1)+((1-LPF)*Filtered_velocity_1);
     last_pos_1 = pos_1;
     last_time_1 = current_time;
 }
@@ -121,14 +121,15 @@ void DC_MOTOR::update_velocity_2(unsigned long current_time) {
     if (delta_time > 0) {
         velocity_2 = (delta_pos * 1000.0) / delta_time;
     }
+    Filtered_velocity_2=(LPF*velocity_2)+((1-LPF)*Filtered_velocity_2);
     last_pos_2 = pos_2;
     last_time_2 = current_time;
 }
 
 int DC_MOTOR::get_velocity_1(){
-    return velocity_1;
+    return Filtered_velocity_1;
 }
 
 int DC_MOTOR::get_velocity_2(){
-    return velocity_2;
+    return Filtered_velocity_2;
 }

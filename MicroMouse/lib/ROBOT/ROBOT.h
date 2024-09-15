@@ -36,14 +36,14 @@ public:
     PID left_pos_pid = PID(3, 0.015, 0.0, 1900);
 
     PID imu_pid = PID(2.45, 0.001, 0.0, 100);
-    PID forward_imu_pid = PID(0, 0.0, 0.0, 0);
+    PID forward_imu_pid = PID(2, 0.0, 0.0, 20);
 
     IMU2040 imu = IMU2040();
     double wheelSeparation, wheelDiameter;
     int PPR; // pulse per revolution
     unsigned long stopping_time = 2500, prev_time = 0, last_update_time = 0;
     int right_pos_setpoint = 0, left_pos_setpoint = 0, angle_setpoint = 0;
-    bool frontWall = 0;
+    bool touchBehindWall = true;
 
 public:
     ROBOT(double wheelSeparation, double wheelDiameter, int PPR)
@@ -71,7 +71,6 @@ public:
         right_motor.init();
         left_motor.init();
         IR_init();
-       // move_distance(3.5);
     }
 
     void move_distance(double distance)
@@ -117,6 +116,10 @@ public:
                 // Serial.println(right_motor.get_pos_feedback_1());
                 last_update_time = current_time;
             }
+            // if (abs(right_pos_pid.getError()) < 30 && abs(left_pos_pid.getError()) < 30)
+            // {
+            //     break;
+            // }
         }
         // right_motor.reset_pos_1();
         // left_motor.reset_pos_2();
@@ -174,6 +177,7 @@ public:
     void Rotation_move_imu(double angle)
     {
         angle_setpoint += angle;
+        // angle_setpoint = angle;
         imu_pid.setSetpoint(angle_setpoint);
         prev_time = millis();
         while (millis() - prev_time < 6000)
@@ -184,8 +188,8 @@ public:
 
             // Serial.print("angle_setpoint: ");
             // Serial.print(angle_setpoint);
-            // Serial.print("Feedback: ");
-            // Serial.println(yaw_angle);
+            Serial.print("Feedback: ");
+            Serial.println(yaw_angle);
 
             int speed = imu_pid.compute();
 
@@ -200,9 +204,10 @@ public:
                 left_motor.backward(speed);
             }
 
-            if (abs(imu_pid.getError()) < 10)
+            if (abs(imu_pid.getError()) < 3)
             {
                 // imu.reset();
+                // this->stop();
                 break;
             }
         }
@@ -218,6 +223,13 @@ public:
     {
         right_motor.stop();
         left_motor.stop();
+    }
+
+    void move_backward()
+    {
+        right_motor.backward(200);
+        left_motor.backward(200);
+        delay(500);
     }
 
     void IR_init()
