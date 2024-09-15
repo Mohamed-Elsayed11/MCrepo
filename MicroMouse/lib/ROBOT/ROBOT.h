@@ -29,14 +29,14 @@ public:
     DC_MOTOR right_motor = DC_MOTOR(input1_1, input2_1, enable_1, encoder1_1, encoder2_1);
     DC_MOTOR left_motor = DC_MOTOR(input1_2, input2_2, enable_2, encoder1_2, encoder2_2);
 
-    PID right_velocity_pid = PID(0.565, 0.0, 0.0, 255); // left
-    PID left_velocity_pid = PID(0.38, 0.0, 0.00, 255);  // Right
+    PID right_velocity_pid = PID(0.565, 0.0, 0.0, 200); // left
+    PID left_velocity_pid = PID(0.38, 0.0, 0.00, 200);  // Right
 
-    PID right_pos_pid = PID(3.2, 0.0, 0.0, 2000);
-    PID left_pos_pid = PID(3, 0.0, 0.0, 1800);
+    PID right_pos_pid = PID(3, 0.015, 0.0, 2050);
+    PID left_pos_pid = PID(3, 0.015, 0.0, 1900);
 
-    PID imu_pid = PID(2.5, 0.001, 0.0, 100);
-    PID forward_imu_pid = PID(10, 0.0, 0.0, 30);
+    PID imu_pid = PID(2.45, 0.001, 0.0, 100);
+    PID forward_imu_pid = PID(0, 0.0, 0.0, 0);
 
     IMU2040 imu = IMU2040();
     double wheelSeparation, wheelDiameter;
@@ -176,7 +176,7 @@ public:
         angle_setpoint += angle;
         imu_pid.setSetpoint(angle_setpoint);
         prev_time = millis();
-        while (millis() - prev_time < stopping_time)
+        while (millis() - prev_time < 6000)
         {
             imu.calulations();
             double yaw_angle = imu.get_Yaw_angle();
@@ -200,7 +200,7 @@ public:
                 left_motor.backward(speed);
             }
 
-            if (abs(imu_pid.getError()) < 2)
+            if (abs(imu_pid.getError()) < 10)
             {
                 // imu.reset();
                 break;
