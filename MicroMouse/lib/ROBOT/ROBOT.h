@@ -32,13 +32,13 @@ public:
     PID right_velocity_pid = PID(0.565, 0.0, 0.0, 200); // left
     PID left_velocity_pid = PID(0.38, 0.0, 0.00, 200);  // Right
 
-    PID right_pos_pid = PID(3, 0.015, 0.0, 2050);
+    PID right_pos_pid = PID(3, 0.015, 0.1, 2050);
     PID left_pos_pid = PID(3, 0.015, 0.0, 1900);
 
-    PID imu_pid = PID(2.45, 0.001, 0.0, 100);
-    PID forward_imu_pid = PID(2, 0.0, 0.0, 20);
+    PID imu_pid = PID(2.3, 0.00, 0.0, 100);
+    PID forward_imu_pid = PID(3, 0.01, 0.0, 50);/*3 0.01 0*/
 
-    PID encoder1_pid = PID(2, 0.003, 0.3, 255); // left
+    PID encoder1_pid = PID(2.5, 0.003, 0.3, 255); // left
     PID encoder2_pid = PID(2.5, 0.008, 0.1, 255); // right
 
     IMU2040 imu = IMU2040();
@@ -47,6 +47,7 @@ public:
     unsigned long stopping_time = 2500, prev_time = 0, last_update_time = 0;
     int right_pos_setpoint = 0, left_pos_setpoint = 0, angle_setpoint = 0;
     bool touchBehindWall = true;
+    long unsigned prev_back_time = 0;
 
 public:
     ROBOT(double wheelSeparation, double wheelDiameter, int PPR)
@@ -182,8 +183,8 @@ public:
 
             // Serial.print("angle_setpoint: ");
             // Serial.print(angle_setpoint);
-            Serial.print("Feedback: ");
-            Serial.println(yaw_angle);
+            // Serial.print("Feedback: ");
+            // Serial.println(yaw_angle);
 
             int speed = imu_pid.compute();
 
@@ -221,9 +222,17 @@ public:
 
     void move_backward()
     {
-        right_motor.backward(200);
-        left_motor.backward(200);
-        delay(500);
+        prev_back_time = millis();
+        while(millis() - prev_back_time < 400){
+            right_motor.backward(200);
+            left_motor.backward(200);
+        }
+        right_pos_setpoint = 0;
+        left_pos_setpoint = 0;
+        right_motor.reset_pos_1();
+        left_motor.reset_pos_2();
+        this->stop();
+        // delay(200);
     }
 
     void IR_init()
