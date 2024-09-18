@@ -12,10 +12,10 @@ class PID {
         double prevError; 
         double integral;  
         unsigned long lastTime; 
-        int feedback, max_output;
+        int feedback, max_output, windup_limit;
 
     public:
-        PID(double kp, double ki, double kd, int max_output);
+        PID(double kp, double ki, double kd, int max_output, int windup_limit);
         void setSetpoint(double setpoint);
         void setFeedback(int feedback);
         int getFeedback();

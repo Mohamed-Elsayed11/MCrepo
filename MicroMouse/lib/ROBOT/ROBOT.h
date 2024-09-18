@@ -29,17 +29,19 @@ public:
     DC_MOTOR right_motor = DC_MOTOR(input1_1, input2_1, enable_1, encoder1_1, encoder2_1);
     DC_MOTOR left_motor = DC_MOTOR(input1_2, input2_2, enable_2, encoder1_2, encoder2_2);
 
-    PID right_velocity_pid = PID(0.565, 0.0, 0.0, 200); // left
-    PID left_velocity_pid = PID(0.38, 0.0, 0.00, 200);  // Right
+    PID right_velocity_pid = PID(0.565, 0.0, 0.0, 200, 20); // left
+    PID left_velocity_pid =  PID(0.38, 0.0, 0.00, 200, 20);  // Right
 
-    PID right_pos_pid = PID(3, 0.015, 0.1, 2050);
-    PID left_pos_pid = PID(3, 0.015, 0.0, 1900);
+    // PID right_pos_pid = PID(3, 0.015, 0.0, 2000);
+    // PID left_pos_pid =  PID(3, 0.015, 0.0, 2000);
+    PID right_pos_pid = PID(2.7, 0.008,  0.1,  2000,  20);
+    PID left_pos_pid =  PID(2.7, 0.008,  0.1,  2000,  20);
 
-    PID imu_pid = PID(2.3, 0.00, 0.0, 100);
-    PID forward_imu_pid = PID(3, 0.01, 0.0, 50);/*3 0.01 0*/
+    PID imu_pid = PID(2.5, 0.001, 0.0, 85, 20);
+    PID forward_imu_pid = PID(4, 0.015, 0.0, 30, 20);
 
-    PID encoder1_pid = PID(2.5, 0.003, 0.3, 255); // left
-    PID encoder2_pid = PID(2.5, 0.008, 0.1, 255); // right
+    PID encoder1_pid = PID(2.5, 0.003, 0.3, 255, 20); // left
+    PID encoder2_pid = PID(2.5, 0.008, 0.1, 255, 20); // right
 
     IMU2040 imu = IMU2040();
     double wheelSeparation, wheelDiameter;
@@ -120,10 +122,10 @@ public:
                 // Serial.println(right_motor.get_pos_feedback_1());
                 last_update_time = current_time;
             }
-            // if (abs(right_pos_pid.getError()) < 30 && abs(left_pos_pid.getError()) < 30)
-            // {
-            //     break;
-            // }
+            if (abs(right_pos_pid.getError()) < 70 && abs(left_pos_pid.getError()) < 70)
+            {
+                break;
+            }
         }
         // right_motor.reset_pos_1();
         // left_motor.reset_pos_2();
@@ -175,7 +177,7 @@ public:
         // angle_setpoint = angle;
         imu_pid.setSetpoint(angle_setpoint);
         prev_time = millis();
-        while (millis() - prev_time < 6000)
+        while (millis() - prev_time < 4000)
         {
             imu.calulations();
             double yaw_angle = imu.get_Yaw_angle();
@@ -199,7 +201,7 @@ public:
                 left_motor.backward(speed);
             }
 
-            if (abs(imu_pid.getError()) < 3)
+            if (abs(imu_pid.getError()) < 1)
             {
                 // imu.reset();
                 // this->stop();
