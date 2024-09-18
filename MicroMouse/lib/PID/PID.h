@@ -5,22 +5,22 @@
 
 class PID {
     private:
-        double kp;      
-        double ki;      
-        double kd;      
-        double setpoint; 
-        double prevError; 
-        double integral;  
+        float kp;      
+        float ki;      
+        float kd;      
+        float setpoint; 
+        float prevError; 
+        float integral;  
         unsigned long lastTime; 
         int feedback, max_output, windup_limit;
 
     public:
-        PID(double kp, double ki, double kd, int max_output, int windup_limit);
-        void setSetpoint(double setpoint);
+        PID(float kp, float ki, float kd, int max_output, int windup_limit);
+        void setSetpoint(float setpoint);
         void setFeedback(int feedback);
         int getFeedback();
-        double getError();
-        double compute();
+        float getError();
+        float compute();
         int direction;
 };
 

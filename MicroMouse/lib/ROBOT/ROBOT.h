@@ -38,7 +38,7 @@ public:
     PID left_pos_pid =  PID(2.7, 0.008,  0.1,  2000,  20);
 
     PID imu_pid = PID(2.5, 0.001, 0.0, 85, 20);
-    PID forward_imu_pid = PID(4, 0.015, 0.0, 30, 20);
+    PID forward_imu_pid = PID(10, 0.015, 0.0, 50, 20);
 
     PID encoder1_pid = PID(2.5, 0.003, 0.3, 255, 20); // left
     PID encoder2_pid = PID(2.5, 0.008, 0.1, 255, 20); // right
@@ -234,6 +234,8 @@ public:
         right_motor.reset_pos_1();
         left_motor.reset_pos_2();
         this->stop();
+        // imu.reset();
+        // angle_setpoint = 0;
         // delay(200);
     }
 
