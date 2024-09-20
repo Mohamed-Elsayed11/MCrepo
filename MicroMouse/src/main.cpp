@@ -1,51 +1,42 @@
 #include <Arduino.h>
-// #include "ROBOT.h"
-#include "FloodFill.h"
 
-// ROBOT robot = ROBOT(9.7, 6.5, 1030);
+#include <Wire.h>
+#include <VL6180X.h>
+
+VL6180X sensor;
 
 void setup()
 {
   Serial.begin(9600);
+  Wire.begin();
 
-  initialize();
+  sensor.init();
+  sensor.configureDefault();
 
-  // robot.init();
+  // Reduce range max convergence time and ALS integration
+  // time to 30 ms and 50 ms, respectively, to allow 10 Hz
+  // operation (as suggested by table "Interleaved mode
+  // limits (10 Hz operation)" in the datasheet).
+  sensor.writeReg(VL6180X::SYSRANGE__MAX_CONVERGENCE_TIME, 30);
+  sensor.writeReg16Bit(VL6180X::SYSALS__INTEGRATION_PERIOD, 50);
 
-  // robot.move_distance(19.2);
+  sensor.setTimeout(500);
 
-  // for(int i = 0; i < 2; i++){
-  //   robot.move_distance(25);
-  //   Serial.println("---------------------------------------------------------------------");
-  // }
+   // stop continuous mode if already active
+  sensor.stopContinuous();
+  // in case stopContinuous() triggered a single-shot
+  // measurement, wait for it to complete
+  delay(300);
+  // start interleaved continuous mode with period of 100 ms
+  sensor.startInterleavedContinuous(100);
 
-  // robot.Rotation_move_imu(90);
-  // robot.Rotation_move_imu(90);
-  // robot.rotate_angle(90);
-  // robot.rotate_angle(90);
 }
 
 void loop()
 {
-  solve();
+  Serial.print("\tRange: ");
+  Serial.print(sensor.readRangeContinuousMillimeters());
+  if (sensor.timeoutOccurred()) { Serial.print(" TIMEOUT"); }
 
-  // for(int i = 0; i < 3; i++){
-  //   robot.move_distance(21.5);
-  //   Serial.println("---------------------------------------------------------------------");
-  // }
-
-  // robot.Rotation_move_imu(-90);
-  // robot.Rotation_move_imu(-90);
-  // robot.rotate_angle(-90);
-  // robot.rotate_angle(-90);
-
-  // for(int i = 0; i < 3; i++){
-  //   robot.move_distance(21.5);
-  //   Serial.println("---------------------------------------------------------------------");
-  // }
-
-  // robot.Rotation_move_imu(90);
-  // robot.Rotation_move_imu(90);
-  // robot.rotate_angle(90);
-  // robot.rotate_angle(90);
+  Serial.println();
 }
