@@ -2,16 +2,19 @@
 
 #include <Wire.h>
 #include <VL6180X.h>
+#include "IMU.h"
 
 MbedI2C I2C1(A0, A1);
 VL6180X sensor;
 VL6180X sensor2;
+IMU2040 imu = IMU2040();
 
 void setup()
 {
   Serial.begin(9600);
   Wire.begin();
   I2C1.begin();
+  imu.init();
 
   sensor2.setBus(&I2C1);
   sensor.init();
@@ -48,11 +51,18 @@ void loop()
   Serial.print(sensor.readRangeContinuousMillimeters());
   if (sensor.timeoutOccurred()) { Serial.print(" TIMEOUT"); }
 
-  Serial.print("\t\t");
+  Serial.print("\t");
 
   Serial.print("\tRange: ");
   Serial.print(sensor2.readRangeContinuousMillimeters());
   if (sensor2.timeoutOccurred()) { Serial.print(" TIMEOUT"); }
+
+  Serial.print("\t");
+
+  imu.calulations();
+  Serial.print("yaw: ");
+  Serial.print(imu.get_Yaw_angle());
+  // Serial.print(imu.relative_yaw);
 
   Serial.println();
 }
