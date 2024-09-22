@@ -154,19 +154,24 @@ void setup() {
 }
 
 void loop() {
-  read_sensors();
-  for(int i=0;i<COUNT_SENSORS;i++)
-  {
-    Serial.print("Sensor");
-    Serial.print(i);
-    Serial.print(" :");
-    Serial.print(sensor_ranges[i]);
-    Serial.print("mm");
-    Serial.print('\t');
+  for(int i = 0; i < 100; i++){
+    read_sensors();
+    for(int i=0;i<COUNT_SENSORS;i++)
+    {
+      Serial.print("Sensor");
+      Serial.print(i);
+      Serial.print(" :");
+      Serial.print(sensor_ranges[i]);
+      Serial.print("mm");
+      Serial.print('\t');
+    }
+    Serial.print("\n");
   }
 
-  imu.calulations();
-  Serial.print("yaw: ");
-  Serial.println(imu.get_Yaw_angle());
-  Serial.println("============================================");
+  for(int i = 0; i < 1000; i++){
+    imu.calulations();
+    Serial.print("yaw: ");
+    Serial.println(imu.get_Yaw_angle());
+    Serial.println("============================================");
+  }
 }
