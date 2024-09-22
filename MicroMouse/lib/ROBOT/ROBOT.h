@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <WiFiNINA.h>
+#include <Adafruit_VL6180X.h>
 #include "PID.h"
 #include "DC_MOTOR.h"
 #include "IMU.h"
@@ -19,41 +20,45 @@
 #define encoder1_2 11
 #define encoder2_2 10
 
+MbedI2C I2C1(A0, A1);
+#define TOF1_ADDRESS 0x30
+#define TOF2_ADDRESS 0x31
+#define right_SHUT A2
+#define left_SHUT A3
+
 #define front_IR A2
-#define right_IR 13
-#define left_IR 12
 
 class ROBOT
 {
-public:
+private:
     DC_MOTOR right_motor = DC_MOTOR(input1_1, input2_1, enable_1, encoder1_1, encoder2_1);
     DC_MOTOR left_motor = DC_MOTOR(input1_2, input2_2, enable_2, encoder1_2, encoder2_2);
 
     PID right_velocity_pid = PID(0.565, 0.0, 0.0, 200, 20); // left
     PID left_velocity_pid =  PID(0.38, 0.0, 0.00, 200, 20);  // Right
 
-    // PID right_pos_pid = PID(3, 0.015, 0.0, 2000);
-    // PID left_pos_pid =  PID(3, 0.015, 0.0, 2000);
     PID right_pos_pid = PID(2.7, 0.008,  0.1,  2000,  20);
     PID left_pos_pid =  PID(2.7, 0.008,  0.1,  2000,  20);
 
     PID imu_pid = PID(2.5, 0.001, 0.0, 85, 20);
-    PID forward_imu_pid = PID(10, 0.015, 0.0, 50, 20);
-
-    PID encoder1_pid = PID(2.5, 0.003, 0.3, 255, 20); // left
-    PID encoder2_pid = PID(2.5, 0.008, 0.1, 255, 20); // right
+    PID TOF_pid = PID(1.0, 0, 0, 50, 20);
 
     IMU2040 imu = IMU2040();
+
+    Adafruit_VL6180X right_TOF = Adafruit_VL6180X();
+    Adafruit_VL6180X left_TOF = Adafruit_VL6180X();
+
     double wheelSeparation, wheelDiameter;
     int PPR; // pulse per revolution
     unsigned long stopping_time = 2500, prev_time = 0, last_update_time = 0;
     int right_pos_setpoint = 0, left_pos_setpoint = 0, angle_setpoint = 0;
-    bool touchBehindWall = true;
     long unsigned prev_back_time = 0;
 
 public:
     ROBOT(double wheelSeparation, double wheelDiameter, int PPR)
         : wheelSeparation(wheelSeparation), wheelDiameter(wheelDiameter), PPR(PPR) {}
+
+    bool touchBehindWall = true;
 
     void init()
     {
@@ -61,22 +66,23 @@ public:
         // while (!Serial)
         //     ;
 
-        if (!imu.init())
-        {
-            Serial.println("IMU initialization failed!");
-            while (1)
-                ;
-        }
-        else
-        {
-            imu.calulations();
-            angle_setpoint = imu.get_Yaw_angle();
-            Serial.println("IMU initialized");
-        }
-
+        imu.init();
+        imu.calulations();
+        angle_setpoint = imu.get_Yaw_angle();
         right_motor.init();
         left_motor.init();
-        IR_init();
+        pinMode(front_IR, INPUT);
+        pinMode(right_SHUT, OUTPUT);
+        pinMode(left_SHUT, OUTPUT);
+        digitalWrite(right_SHUT, HIGH);
+        digitalWrite(left_SHUT, LOW);
+        right_TOF.begin(&I2C1);
+        right_TOF.setAddress(TOF1_ADDRESS);
+        delay(10);
+        digitalWrite(left_SHUT, HIGH);
+        delay(10);
+        left_TOF.begin(&I2C1);
+        left_TOF.setAddress(TOF2_ADDRESS);
     }
 
     void move_distance(double distance)
@@ -88,7 +94,7 @@ public:
         left_pos_setpoint += pulses;
         right_pos_pid.setSetpoint(right_pos_setpoint);
         left_pos_pid.setSetpoint(left_pos_setpoint);
-        forward_imu_pid.setSetpoint(angle_setpoint);
+        TOF_pid.setSetpoint(0);
         prev_time = millis();
         while (millis() - prev_time < stopping_time)
         {
@@ -97,22 +103,24 @@ public:
             {
                 right_motor.update_velocity_1(current_time);
                 left_motor.update_velocity_2(current_time);
-
                 right_pos_pid.setFeedback(right_motor.get_pos_feedback_1());
                 left_pos_pid.setFeedback(left_motor.get_pos_feedback_2());
-
-                imu.calulations();
-                forward_imu_pid.setFeedback(imu.get_Yaw_angle());
-
                 right_velocity_pid.setSetpoint(right_pos_pid.compute());
                 left_velocity_pid.setSetpoint(left_pos_pid.compute());
                 right_velocity_pid.setFeedback(right_motor.get_velocity_1());
                 left_velocity_pid.setFeedback(left_motor.get_velocity_2());
                 int speed1 = right_velocity_pid.compute();
                 int speed2 = left_velocity_pid.compute();
-                int speed3 = forward_imu_pid.compute();
-                forward_imu_pid.direction > 0 ? speed3 = speed3 : speed3 = -speed3;
-                speed1 -= speed3; speed2 += speed3;
+                int TOF_error = right_TOF.readRange() - left_TOF.readRange();
+                // Serial.print("right TOF: ");
+                // Serial.print(right_TOF.readRange());
+                // Serial.print('\t');
+                // Serial.print("left TOF: ");
+                // Serial.println(left_TOF.readRange());
+                TOF_pid.setFeedback(TOF_error);
+                int speed3 = TOF_pid.compute();
+                TOF_pid.direction > 0 ? speed3 = speed3 : speed3 = -speed3;
+                speed1 += speed3; speed2 -= speed3;
                 right_pos_pid.direction > 0 ? right_motor.forward(speed1) : right_motor.backward(speed1);
                 left_pos_pid.direction > 0 ? left_motor.forward(speed2) : left_motor.backward(speed2);
                 // Serial.print("right motor: ");
@@ -130,45 +138,6 @@ public:
         // right_motor.reset_pos_1();
         // left_motor.reset_pos_2();
         this->stop();
-    }
-
-    void rotate_angle(double angle)
-    {
-        // right_motor.reset_pos_1();
-        // left_motor.reset_pos_2();
-        double distance = (angle / 360) * 3.14 * wheelSeparation;
-        double circumference = 3.14 * wheelDiameter;
-        double rotations_no = distance / circumference;
-        int pulses = rotations_no * PPR;
-        right_pos_setpoint += pulses;
-        left_pos_setpoint -= pulses;
-        // encoder1_pid.setSetpoint(pulses);
-        // encoder2_pid.setSetpoint(-pulses);
-        encoder1_pid.setSetpoint(right_pos_setpoint);
-        encoder2_pid.setSetpoint(left_pos_setpoint);
-        prev_time = millis();
-        while (millis() - prev_time < stopping_time)
-        {
-            imu.calulations();
-            Serial.print("imu: ");
-            Serial.println(imu.get_Yaw_angle());
-            encoder1_pid.setFeedback(right_motor.get_pos_feedback_1());
-            encoder2_pid.setFeedback(left_motor.get_pos_feedback_2());
-            // Serial.print("left motor = ");
-            // Serial.print(encoder1_pid.getFeedback());
-            // Serial.print('\t');
-            // Serial.print("right motor = ");
-            // Serial.println(encoder2_pid.getFeedback());
-            delay(5);
-            int speed1 = encoder1_pid.compute();
-            int speed2 = encoder2_pid.compute();
-            encoder1_pid.direction > 0 ? right_motor.forward(speed1) : right_motor.backward(speed1);
-            encoder2_pid.direction > 0 ? left_motor.forward(speed2) : left_motor.backward(speed2);
-        }
-        // right_pos_setpoint = 0;
-        // left_pos_setpoint = 0;
-        // right_motor.reset_pos_1();
-        // left_motor.reset_pos_2();
     }
 
     void Rotation_move_imu(double angle)
@@ -239,13 +208,6 @@ public:
         // delay(200);
     }
 
-    void IR_init()
-    {
-        pinMode(front_IR, INPUT);
-        pinMode(right_IR, INPUT);
-        pinMode(left_IR, INPUT);
-    }
-
     bool isFrontWall()
     {
         return !digitalRead(front_IR);
@@ -253,12 +215,12 @@ public:
 
     bool isRightWall()
     {
-        return !digitalRead(right_IR);
+        return right_TOF.readRange() < 100;
     }
 
     bool isLeftWall()
     {
-        return !digitalRead(left_IR);
+        return left_TOF.readRange() < 100;
     }
 };
 

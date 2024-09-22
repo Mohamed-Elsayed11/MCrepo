@@ -1,56 +1,51 @@
 #include <Arduino.h>
-#include <Adafruit_VL6180X.h>
-#include "IMU.h"
+// #include "ROBOT.h"
+#include "FloodFill.h"
 
-MbedI2C I2C1(A0, A1);
+// ROBOT robot = ROBOT(9.7, 6.5, 1030);
 
-#define TOF1_ADDRESS 0x30
-#define TOF2_ADDRESS 0x31
+void setup()
+{
+  Serial.begin(9600);
 
-#define SHUT1 A2
-#define SHUT2 A3
+  initialize();
 
-Adafruit_VL6180X right_TOF = Adafruit_VL6180X();
-Adafruit_VL6180X left_TOF = Adafruit_VL6180X();
+  // robot.init();
 
-IMU2040 imu = IMU2040();
+  // robot.move_distance(19.2);
 
-void setID() {
-  digitalWrite(SHUT1, HIGH);
-  digitalWrite(SHUT2, LOW);
+  // for(int i = 0; i < 2; i++){
+  //   robot.move_distance(25);
+  //   Serial.println("---------------------------------------------------------------------");
+  // }
 
-  right_TOF.begin(&I2C1);
-  right_TOF.setAddress(TOF1_ADDRESS);
-  delay(10);
-  digitalWrite(SHUT2, HIGH);
-  delay(10);
-
-  left_TOF.begin(&I2C1);
-  left_TOF.setAddress(TOF2_ADDRESS);
+  // robot.Rotation_move_imu(90);
+  // robot.Rotation_move_imu(90);
+  // robot.rotate_angle(90);
+  // robot.rotate_angle(90);
 }
 
-void setup() {
-  Serial.begin(115200);
-  pinMode(SHUT1, OUTPUT);
-  pinMode(SHUT2, OUTPUT);
-  setID();
-  imu.init();
-}
+void loop()
+{
+  solve();
 
-void loop() {
-  for(int i = 0; i < 1000; i++){
-    Serial.print("sensor 1: ");
-    Serial.print(right_TOF.readRange());
-    Serial.print('\t');
-    Serial.print("sensor 2: ");
-    Serial.print(left_TOF.readRange());
-    Serial.print("\n");
-  }
+  // for(int i = 0; i < 3; i++){
+  //   robot.move_distance(21.5);
+  //   Serial.println("---------------------------------------------------------------------");
+  // }
 
-  for(int i = 0; i < 1000; i++){
-    imu.calulations();
-    Serial.print("yaw: ");
-    Serial.println(imu.get_Yaw_angle());
-    Serial.println("============================================");
-  }
+  // robot.Rotation_move_imu(-90);
+  // robot.Rotation_move_imu(-90);
+  // robot.rotate_angle(-90);
+  // robot.rotate_angle(-90);
+
+  // for(int i = 0; i < 3; i++){
+  //   robot.move_distance(21.5);
+  //   Serial.println("---------------------------------------------------------------------");
+  // }
+
+  // robot.Rotation_move_imu(90);
+  // robot.Rotation_move_imu(90);
+  // robot.rotate_angle(90);
+  // robot.rotate_angle(90);
 }
