@@ -66,9 +66,6 @@ public:
         // while (!Serial)
         //     ;
 
-        imu.init();
-        imu.calulations();
-        angle_setpoint = imu.get_Yaw_angle();
         right_motor.init();
         left_motor.init();
         pinMode(front_IR, INPUT);
@@ -83,6 +80,9 @@ public:
         delay(10);
         left_TOF.begin(&I2C1);
         left_TOF.setAddress(TOF2_ADDRESS);
+        imu.init();
+        imu.calulations();
+        angle_setpoint = imu.get_Yaw_angle();
     }
 
     void move_distance(double distance)
