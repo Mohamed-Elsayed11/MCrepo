@@ -26,7 +26,7 @@ MbedI2C I2C1(A0, A1);
 #define right_SHUT A2
 #define left_SHUT A3
 
-#define front_IR A2
+#define front_IR 13
 
 class ROBOT
 {
