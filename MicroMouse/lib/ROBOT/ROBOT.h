@@ -41,7 +41,7 @@ private:
     PID left_pos_pid =  PID(2.7, 0.008,  0.1,  2000,  20);
 
     PID imu_pid = PID(2.5, 0.001, 0.0, 85, 20);
-    PID TOF_pid = PID(1.0, 0, 0, 50, 20);
+    PID TOF_pid = PID(0.8, 0, 0, 50, 20);
 
     IMU2040 imu = IMU2040();
 
@@ -51,8 +51,9 @@ private:
     double wheelSeparation, wheelDiameter;
     int PPR; // pulse per revolution
     unsigned long stopping_time = 2500, prev_time = 0, last_update_time = 0;
-    int right_pos_setpoint = 0, left_pos_setpoint = 0, angle_setpoint = 0;
-    long unsigned prev_back_time = 0;
+    int right_pos_setpoint = 0, left_pos_setpoint = 0, angle_setpoint = 0, TOF_error = 0;
+    long unsigned prev_back_time = 0, last_TOF_update;
+    bool TOF_correction = false;
 
 public:
     ROBOT(double wheelSeparation, double wheelDiameter, int PPR)
@@ -98,11 +99,22 @@ public:
         prev_time = millis();
         while (millis() - prev_time < stopping_time)
         {
+            if(millis() - last_TOF_update >= 100)
+            {
+                int right_distance = right_TOF.readRange();
+                int left_distance = left_TOF.readRange();
+                right_TOF.readRange() < 100 && left_TOF.readRange() < 100 ? TOF_correction = true : TOF_correction = false;
+                TOF_error = right_distance - left_distance;
+                Serial.print("right distance: ");
+                Serial.print(right_distance);
+                Serial.print('\t');
+                Serial.print("left distance: ");
+                Serial.println(left_distance);
+                last_TOF_update = millis();
+            }
             unsigned long current_time = millis();
             if (current_time - last_update_time >= 30)
             {
-                right_motor.update_velocity_1(current_time);
-                left_motor.update_velocity_2(current_time);
                 right_pos_pid.setFeedback(right_motor.get_pos_feedback_1());
                 left_pos_pid.setFeedback(left_motor.get_pos_feedback_2());
                 right_velocity_pid.setSetpoint(right_pos_pid.compute());
@@ -111,16 +123,16 @@ public:
                 left_velocity_pid.setFeedback(left_motor.get_velocity_2());
                 int speed1 = right_velocity_pid.compute();
                 int speed2 = left_velocity_pid.compute();
-                int TOF_error = right_TOF.readRange() - left_TOF.readRange();
-                // Serial.print("right TOF: ");
-                // Serial.print(right_TOF.readRange());
-                // Serial.print('\t');
-                // Serial.print("left TOF: ");
-                // Serial.println(left_TOF.readRange());
-                TOF_pid.setFeedback(TOF_error);
-                int speed3 = TOF_pid.compute();
-                TOF_pid.direction > 0 ? speed3 = speed3 : speed3 = -speed3;
-                speed1 += speed3; speed2 -= speed3;
+                if(TOF_correction)
+                {
+                    TOF_pid.setFeedback(TOF_error);
+                    int speed3 = TOF_pid.compute();
+                    Serial.println(speed3);
+                    TOF_pid.direction > 0 ? speed3 = speed3 : speed3 = -speed3;
+                    speed1 += speed3; speed2 -= speed3;
+                }
+                right_pos_pid.getError() < 70 ? speed1 = 0 : speed1 = speed1;
+                left_pos_pid.getError() < 70 ? speed2 = 0 : speed2 = speed2;
                 right_pos_pid.direction > 0 ? right_motor.forward(speed1) : right_motor.backward(speed1);
                 left_pos_pid.direction > 0 ? left_motor.forward(speed2) : left_motor.backward(speed2);
                 // Serial.print("right motor: ");
