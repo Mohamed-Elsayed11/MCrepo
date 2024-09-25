@@ -23,8 +23,8 @@
 MbedI2C I2C1(A0, A1);
 #define TOF1_ADDRESS 0x30
 #define TOF2_ADDRESS 0x31
-#define right_SHUT A2
-#define left_SHUT A3
+#define right_SHUT A3
+#define left_SHUT A2
 
 #define front_IR 13
 
@@ -97,6 +97,12 @@ public:
         left_pos_pid.setSetpoint(left_pos_setpoint);
         TOF_pid.setSetpoint(0);
         prev_time = millis();
+        // Serial.print("front: ");
+        // Serial.print(this->isFrontWall());
+        // Serial.print("right: ");
+        // Serial.print(this->isRightWall());
+        // Serial.print("left: ");
+        // Serial.println(this->isLeftWall());
         while (millis() - prev_time < stopping_time)
         {
             if(millis() - last_TOF_update >= 100)
@@ -105,11 +111,11 @@ public:
                 int left_distance = left_TOF.readRange();
                 right_TOF.readRange() < 100 && left_TOF.readRange() < 100 ? TOF_correction = true : TOF_correction = false;
                 TOF_error = right_distance - left_distance;
-                Serial.print("right distance: ");
-                Serial.print(right_distance);
-                Serial.print('\t');
-                Serial.print("left distance: ");
-                Serial.println(left_distance);
+                // Serial.print("right distance: ");
+                // Serial.print(right_distance);
+                // Serial.print('\t');
+                // Serial.print("left distance: ");
+                // Serial.println(left_distance);
                 last_TOF_update = millis();
             }
             unsigned long current_time = millis();
@@ -129,10 +135,10 @@ public:
                     int speed3 = TOF_pid.compute();
                     Serial.println(speed3);
                     TOF_pid.direction > 0 ? speed3 = speed3 : speed3 = -speed3;
-                    speed1 += speed3; speed2 -= speed3;
+                    speed1 -= speed3; speed2 += speed3;
                 }
-                right_pos_pid.getError() < 70 ? speed1 = 0 : speed1 = speed1;
-                left_pos_pid.getError() < 70 ? speed2 = 0 : speed2 = speed2;
+                right_pos_pid.getError() < 50 ? speed1 = 0 : speed1 = speed1;
+                left_pos_pid.getError() < 50 ? speed2 = 0 : speed2 = speed2;
                 right_pos_pid.direction > 0 ? right_motor.forward(speed1) : right_motor.backward(speed1);
                 left_pos_pid.direction > 0 ? left_motor.forward(speed2) : left_motor.backward(speed2);
                 // Serial.print("right motor: ");
@@ -142,7 +148,7 @@ public:
                 // Serial.println(right_motor.get_pos_feedback_1());
                 last_update_time = current_time;
             }
-            if (abs(right_pos_pid.getError()) < 70 && abs(left_pos_pid.getError()) < 70)
+            if (abs(right_pos_pid.getError()) < 50 && abs(left_pos_pid.getError()) < 50)
             {
                 break;
             }
@@ -158,6 +164,12 @@ public:
         // angle_setpoint = angle;
         imu_pid.setSetpoint(angle_setpoint);
         prev_time = millis();
+        Serial.print("front: ");
+        Serial.print(this->isFrontWall());
+        Serial.print("right: ");
+        Serial.print(this->isRightWall());
+        Serial.print("left: ");
+        Serial.println(this->isLeftWall());
         while (millis() - prev_time < 4000)
         {
             imu.calulations();
@@ -227,12 +239,12 @@ public:
 
     bool isRightWall()
     {
-        return right_TOF.readRange() < 100;
+        return right_TOF.readRange() < 75;
     }
 
     bool isLeftWall()
     {
-        return left_TOF.readRange() < 100;
+        return left_TOF.readRange() < 75;
     }
 };
 

@@ -414,12 +414,12 @@ void solve(){
             Serial.println("FRONT");
             if(robot.touchBehindWall){
                 Serial.println(robot.touchBehindWall);
-                robot.move_distance(22.7);
+                robot.move_distance(21);
                 robot.touchBehindWall = false;
             }
             else{
                 Serial.println(robot.touchBehindWall);
-                robot.move_distance(19.2);
+                robot.move_distance(18);
             }
             break;
         case LEFT:
