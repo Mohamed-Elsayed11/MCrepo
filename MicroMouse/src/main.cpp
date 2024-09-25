@@ -13,9 +13,11 @@ void setup()
   // robot.init();
 
   // robot.move_distance(19.2);
+  // robot.move_distance(21.7);
+  // robot.move_distance(19.2);
 
   // for(int i = 0; i < 2; i++){
-  //   robot.move_distance(19.2);
+  //   robot.move_distance(21.7);
   //   Serial.println("---------------------------------------------------------------------");
   // }
 
