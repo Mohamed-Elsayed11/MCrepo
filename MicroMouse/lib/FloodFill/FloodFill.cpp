@@ -425,12 +425,10 @@ void solve(){
         case LEFT:
             Serial.println("LEFT");
             robot.Rotation_move_imu(90);
-            // robot.rotate_angle(90);
             break;
         case RIGHT:
             Serial.println("RIGHT");
             robot.Rotation_move_imu(-90);
-            // robot.rotate_angle(-90);
             break;
         case IDLE:
             break;

@@ -71,11 +71,6 @@ void IMU2040::calulations()
         }
 
         relative_yaw = ((yaw - initial_yaw) * 10);
-        // if (abs(gyroX) > gyro_threshold || abs(gyroY) > gyro_threshold || abs(gyroZ) > gyro_threshold)
-        // {
-        //     relative_yaw = relative_yaw;
-        // }
-
         delay(10);
     }
 }
@@ -93,11 +88,5 @@ void IMU2040::reset()
     gyro_biasX = 0.0;
     gyro_biasY = 0.0;
     gyro_biasZ = 0.0;
-
-    // if (!IMU.begin()) {
-    //     Serial.println("Failed to reinitialize IMU!");
-    // } else {
-    //     Serial.println("IMU reinitialized!");
-        calibrateGyroscope();  
-    // }
+    calibrateGyroscope();  
 }

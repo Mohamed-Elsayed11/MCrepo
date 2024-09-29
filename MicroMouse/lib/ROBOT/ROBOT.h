@@ -63,10 +63,6 @@ public:
 
     void init()
     {
-
-        // while (!Serial)
-        //     ;
-
         right_motor.init();
         left_motor.init();
         pinMode(front_IR, INPUT);
@@ -97,12 +93,6 @@ public:
         left_pos_pid.setSetpoint(left_pos_setpoint);
         TOF_pid.setSetpoint(0);
         prev_time = millis();
-        // Serial.print("front: ");
-        // Serial.print(this->isFrontWall());
-        // Serial.print("right: ");
-        // Serial.print(this->isRightWall());
-        // Serial.print("left: ");
-        // Serial.println(this->isLeftWall());
         while (millis() - prev_time < stopping_time)
         {
             if(millis() - last_TOF_update >= 100)
@@ -111,11 +101,6 @@ public:
                 int left_distance = left_TOF.readRange();
                 right_TOF.readRange() < 100 && left_TOF.readRange() < 100 ? TOF_correction = true : TOF_correction = false;
                 TOF_error = right_distance - left_distance;
-                // Serial.print("right distance: ");
-                // Serial.print(right_distance);
-                // Serial.print('\t');
-                // Serial.print("left distance: ");
-                // Serial.println(left_distance);
                 last_TOF_update = millis();
             }
             unsigned long current_time = millis();
@@ -141,11 +126,6 @@ public:
                 left_pos_pid.getError() < 50 ? speed2 = 0 : speed2 = speed2;
                 right_pos_pid.direction > 0 ? right_motor.forward(speed1) : right_motor.backward(speed1);
                 left_pos_pid.direction > 0 ? left_motor.forward(speed2) : left_motor.backward(speed2);
-                // Serial.print("right motor: ");
-                // Serial.print(left_motor.get_pos_feedback_2());
-                // Serial.print("\t\t");
-                // Serial.print("left motor: ");
-                // Serial.println(right_motor.get_pos_feedback_1());
                 last_update_time = current_time;
             }
             if (abs(right_pos_pid.getError()) < 50 && abs(left_pos_pid.getError()) < 50)
@@ -153,15 +133,12 @@ public:
                 break;
             }
         }
-        // right_motor.reset_pos_1();
-        // left_motor.reset_pos_2();
         this->stop();
     }
 
     void Rotation_move_imu(double angle)
     {
         angle_setpoint += angle;
-        // angle_setpoint = angle;
         imu_pid.setSetpoint(angle_setpoint);
         prev_time = millis();
         Serial.print("front: ");
@@ -175,12 +152,6 @@ public:
             imu.calulations();
             double yaw_angle = imu.get_Yaw_angle();
             imu_pid.setFeedback(yaw_angle);
-
-            // Serial.print("angle_setpoint: ");
-            // Serial.print(angle_setpoint);
-            // Serial.print("Feedback: ");
-            // Serial.println(yaw_angle);
-
             int speed = imu_pid.compute();
 
             if (imu_pid.direction > 0)
@@ -196,14 +167,9 @@ public:
 
             if (abs(imu_pid.getError()) < 1)
             {
-                // imu.reset();
-                // this->stop();
                 break;
             }
         }
-        // imu.reset();
-        // right_motor.reset_pos_1();
-        // left_motor.reset_pos_2();
         right_pos_setpoint = right_motor.get_pos_feedback_1();
         left_pos_setpoint = left_motor.get_pos_feedback_2();
         this->stop();
@@ -227,9 +193,6 @@ public:
         right_motor.reset_pos_1();
         left_motor.reset_pos_2();
         this->stop();
-        // imu.reset();
-        // angle_setpoint = 0;
-        // delay(200);
     }
 
     bool isFrontWall()
